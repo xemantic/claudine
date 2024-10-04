@@ -1,5 +1,7 @@
 package com.xemantic.claudine
 
-fun main() {
+import kotlinx.coroutines.runBlocking
+
+fun main() = runBlocking {
   claudine()
 }

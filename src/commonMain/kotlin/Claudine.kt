@@ -1,5 +1,5 @@
 package com.xemantic.claudine
 
-fun claudine() {
+suspend fun claudine() {
   println("Hi Human")
 }
