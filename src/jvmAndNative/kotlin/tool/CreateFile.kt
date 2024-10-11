@@ -3,6 +3,7 @@ package com.xemantic.claudine.tool
 import com.xemantic.anthropic.message.Text
 import com.xemantic.anthropic.message.ToolResult
 import com.xemantic.anthropic.tool.SerializableTool
+import com.xemantic.anthropic.tool.UsableTool
 import kotlinx.io.buffered
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
@@ -18,10 +19,10 @@ data class CreateFile(
   val path: String,
   val content: String,
   val isBase64: Boolean = false,
-) : SafeTool {
+) : UsableTool {
 
   @OptIn(ExperimentalEncodingApi::class)
-  override fun execute(toolUseId: String): ToolResult {
+  override fun use(toolUseId: String): ToolResult {
     val file = Path(path = path)
     println("[Tool:CreateFile] $file")
     SystemFileSystem.sink(file).buffered().use { sink ->
@@ -34,9 +35,7 @@ data class CreateFile(
     return ToolResult(
       toolUseId = toolUseId,
       content = listOf(
-        Text(
-          text = "File created",
-        )
+        Text(text = "File created")
       )
     )
   }

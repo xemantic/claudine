@@ -1,33 +1,49 @@
 package com.xemantic.claudine.tool
 
+import com.xemantic.anthropic.anthropicJson
 import com.xemantic.anthropic.message.Text
 import com.xemantic.anthropic.message.ToolResult
+import com.xemantic.anthropic.schema.jsonSchemaOf
 import com.xemantic.anthropic.tool.SerializableTool
+import com.xemantic.anthropic.tool.UsableTool
 import kotlinx.io.buffered
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
 import kotlinx.io.readByteArray
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 @SerializableTool(
   name = "ReadFiles",
-  description = """Reads files from specified paths on human's machine.
-The order of text or image content elements in the returned tool result will match the order of requested files."""
+  description = """
+## Reads files from human's machine.
+
+The files are read according to the list of specified file descriptors. Each descriptor contains the file path
+and an optional "cache" flag, which will enable tool result caching.
+
+Caching is important for big results with several files to minimize API usage costs.
+
+The order of text or image content elements in the returned tool result will match the order of requested files.
+
+Avoid using this tool if the goal is to copy or move a file. For this purpose prefer to execute shell command.
+"""
 )
 data class ReadFiles(
-  val paths: List<String>,
-  val useBase64: Boolean
-) : SafeTool {
+  val fileDescriptors: List<FileDescriptor>,
+  val cache: Boolean
+) : UsableTool {
 
   @OptIn(ExperimentalEncodingApi::class)
-  override fun execute(toolUseId: String): ToolResult {
-    val content = paths.map { path ->
-      val file = Path(path)
+  override fun use(toolUseId: String): ToolResult {
+    val content = fileDescriptors.map { descriptor ->
+      val file = Path(descriptor.path)
       println("[Tool:ReadTextFiles] $file")
       SystemFileSystem.source(file).buffered().use { source ->
         val data = source.readByteArray()
-        if (data.isImage() || useBase64) {
+        if (data.isImage()) {
           Base64.encode(data)
         } else {
           data.decodeToString()
@@ -43,6 +59,12 @@ data class ReadFiles(
   }
 
 }
+
+@Serializable
+data class FileDescriptor(
+  val path: String,
+  val useBase64: Boolean
+)
 
 private fun ByteArray.isImage() = ImageFormatMagic.isImage(this)
 
