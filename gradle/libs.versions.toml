@@ -11,6 +11,7 @@ ktor = "3.0.0"
 
 anthropicSdkKotlin = "0.3-SNAPSHOT"
 
+kotlinLogging = "7.0.0"
 log4j = "2.24.1"
 jackson = "2.18.0"
 
@@ -21,6 +22,7 @@ kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotl
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 kotlinx-io = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinxIo" }
+kotlin-logging = { module = "io.github.oshai:kotlin-logging", version.ref = "kotlinLogging" }
 
 anthropic-sdk-kotlin = { module = "com.xemantic.anthropic:anthropic-sdk-kotlin", version.ref = "anthropicSdkKotlin" }
 

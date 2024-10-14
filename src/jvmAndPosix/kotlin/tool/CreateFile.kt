@@ -2,7 +2,7 @@ package com.xemantic.claudine.tool
 
 import com.xemantic.anthropic.message.Text
 import com.xemantic.anthropic.message.ToolResult
-import com.xemantic.anthropic.tool.SerializableTool
+import com.xemantic.anthropic.tool.AnthropicTool
 import com.xemantic.anthropic.tool.UsableTool
 import kotlinx.io.buffered
 import kotlinx.io.files.Path
@@ -11,22 +11,29 @@ import kotlinx.io.writeString
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
-@SerializableTool(
+// TODO it should be replaced with CreateFiles
+@AnthropicTool(
   name = "CreateFile",
-  description = "Creates file, from content, under specified path, on human's machine"
+  description = """
+## Creates a file
+
+A file, named according to the path, containing the content, will be created on human's machine.
+
+A binary data content can be created with a combination of Base64 encoded content and optional base64 parameter set to true.
+The base64 parameter defaults to false.
+"""
 )
 data class CreateFile(
   val path: String,
   val content: String,
-  val isBase64: Boolean = false,
+  val base64: Boolean = false,
 ) : UsableTool {
 
   @OptIn(ExperimentalEncodingApi::class)
   override fun use(toolUseId: String): ToolResult {
     val file = Path(path = path)
-    println("[Tool:CreateFile] $file")
     SystemFileSystem.sink(file).buffered().use { sink ->
-      if (isBase64) {
+      if (base64) {
         sink.write(Base64.decode(content))
       } else {
         sink.writeString(content)
