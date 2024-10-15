@@ -21,7 +21,7 @@ fun main() = runBlocking {
 
   println("Connecting human and human's machine to Claude AI")
 
-  var conversation = mutableListOf<Message>()
+  val conversation = mutableListOf<Message>()
 
   while (true) {
     print("> ")
@@ -30,7 +30,7 @@ fun main() = runBlocking {
 
     conversation += Message { +line } // no cache involved
 
-    var continueRequest = true
+    var continueRequest: Boolean
     do {
 
       val response = client.messages.create {

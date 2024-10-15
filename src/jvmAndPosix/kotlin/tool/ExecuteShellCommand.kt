@@ -23,7 +23,7 @@ data class ExecuteShellCommand(
   val timeout: Int
 ) : UsableTool {
 
-  override fun use(toolUseId: String) = executeShell(
+  override suspend fun use(toolUseId: String) = executeShell(
     toolUseId, command, workingDir, timeout
   )
 

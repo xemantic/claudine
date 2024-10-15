@@ -16,12 +16,12 @@ fun Flow<String>.claudine(
   systemPrompt: String
 ): Flow<String> = flow {
 
-  var conversation = mutableListOf<Message>()
+  val conversation = mutableListOf<Message>()
 
   collect { input ->
     conversation += Message { +input } // no cache involved
 
-    var continueRequest = true
+    var continueRequest: Boolean
     do {
 
       val response = client.messages.create {

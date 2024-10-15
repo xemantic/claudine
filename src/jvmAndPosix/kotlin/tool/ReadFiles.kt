@@ -40,7 +40,7 @@ data class ReadFiles(
 ) : UsableTool {
 
   @OptIn(ExperimentalEncodingApi::class)
-  override fun use(toolUseId: String): ToolResult {
+  override suspend fun use(toolUseId: String): ToolResult {
     val content = fileDescriptors.map { descriptor ->
       val file = Path(descriptor.path)
       println("[Tool:ReadTextFiles] $file")

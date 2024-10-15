@@ -30,7 +30,7 @@ data class CreateFile(
 ) : UsableTool {
 
   @OptIn(ExperimentalEncodingApi::class)
-  override fun use(toolUseId: String): ToolResult {
+  override suspend fun use(toolUseId: String): ToolResult {
     val file = Path(path = path)
     SystemFileSystem.sink(file).buffered().use { sink ->
       if (base64) {
