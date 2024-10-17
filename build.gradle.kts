@@ -15,15 +15,19 @@ kotlin {
 
   jvm {
     // withJava()
+
+//    mainRun {
+//      mainClass = "com.xemantic.claudine.ClaudineKt"
+//    }
   }
 
-  linuxX64 {
-    binaries {
-      executable {
-        entryPoint = "com.xemantic.claudine.main"
-      }
-    }
-  }
+//  macosArm64 {
+//    binaries {
+//      executable {
+//        entryPoint = "com.xemantic.claudine.main"
+//      }
+//    }
+//  }
 
   sourceSets {
 
@@ -61,8 +65,17 @@ kotlin {
 
     nativeMain {
       dependsOn(jvmAndPosix)
+    }
+
+    linuxMain {
       dependencies {
         implementation(libs.ktor.client.curl)
+      }
+    }
+
+    macosMain {
+      dependencies {
+        implementation(libs.ktor.client.darwin)
       }
     }
 
@@ -85,4 +98,19 @@ kotlin {
 
 tasks.withType<JavaExec>().configureEach {
   standardInput = System.`in`
+}
+
+tasks.withType<Jar> {
+  doFirst {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    val main by kotlin.jvm().compilations.getting
+    manifest {
+      attributes(
+        "Main-Class" to "com.xemantic.claudine.ClaudineKt",
+      )
+    }
+    from({
+      main.runtimeDependencyFiles.files.filter { it.name.endsWith("jar") }.map { zipTree(it) }
+    })
+  }
 }

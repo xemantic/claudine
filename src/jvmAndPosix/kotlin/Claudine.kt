@@ -5,6 +5,7 @@ import com.xemantic.anthropic.message.Message
 import com.xemantic.anthropic.message.Text
 import com.xemantic.anthropic.message.ToolResult
 import com.xemantic.anthropic.message.ToolUse
+import com.xemantic.anthropic.message.plusAssign
 import com.xemantic.claudine.tool.CreateFile
 import com.xemantic.claudine.tool.ExecuteShellCommand
 import com.xemantic.claudine.tool.ReadFiles
@@ -40,7 +41,7 @@ fun main() = runBlocking {
         useTools()
       }
 
-      conversation += response.asMessage()
+      conversation += response
 
       val toolResults = mutableListOf<ToolResult>()
       response.content.forEach {

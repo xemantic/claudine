@@ -10,6 +10,7 @@ actual fun executeShell(
   workingDir: String,
   timeout: Int
 ): ToolResult {
+
   execlp(command, command)
   return ToolResult(
     toolUseId = toolUseId,
