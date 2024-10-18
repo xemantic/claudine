@@ -2,6 +2,7 @@ package com.xemantic.claudine.tool
 
 import com.xemantic.anthropic.message.Text
 import com.xemantic.anthropic.message.ToolResult
+import com.xemantic.anthropic.schema.Description
 import com.xemantic.anthropic.tool.AnthropicTool
 import com.xemantic.anthropic.tool.UsableTool
 import kotlinx.io.buffered
@@ -12,9 +13,8 @@ import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 // TODO it should be replaced with CreateFiles
-@AnthropicTool(
-  name = "CreateFile",
-  description = """
+@AnthropicTool("CreateFile")
+@Description("""
 ## Creates a file
 
 A file, named according to the path, containing the content, will be created on human's machine.

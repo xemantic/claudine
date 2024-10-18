@@ -4,6 +4,7 @@ import com.xemantic.anthropic.message.CacheControl
 import com.xemantic.anthropic.message.Image
 import com.xemantic.anthropic.message.Text
 import com.xemantic.anthropic.message.ToolResult
+import com.xemantic.anthropic.schema.Description
 import com.xemantic.anthropic.tool.AnthropicTool
 import com.xemantic.anthropic.tool.UsableTool
 import kotlinx.io.buffered
@@ -15,9 +16,8 @@ import kotlinx.serialization.Serializable
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
-@AnthropicTool(
-  name = "ReadFiles",
-  description = """
+@AnthropicTool("ReadFiles")
+@Description("""
 ## Reads files
 
 Reads specified files from human's machine.
@@ -32,8 +32,7 @@ Setting cache parameter to true will cause cache control to be added to the tool
 big results containing several files, to minimize API usage costs.
 
 
-"""
-)
+""")
 data class ReadFiles(
   val fileDescriptors: List<FileDescriptor>,
   val cache: Boolean
