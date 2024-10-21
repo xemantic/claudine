@@ -1,6 +1,5 @@
 package com.xemantic.claudine.tool
 
-import com.xemantic.anthropic.message.CacheControl
 import com.xemantic.anthropic.message.Image
 import com.xemantic.anthropic.message.Text
 import com.xemantic.anthropic.message.ToolResult
@@ -16,32 +15,26 @@ import kotlinx.serialization.Serializable
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
-@AnthropicTool("ReadFiles")
-@Description("""
-## Reads files
-
-Reads specified files from human's machine.
- 
-The files are read according to the list of specified file descriptors. Each descriptor refers to the file path
-and an optional base64 flag, which defaults to false. If base64 is set to true, the file will be encoded
-with Base64.
-
-The order of text or image content elements in the returned tool result will match the order of requested files.
-
-Setting cache parameter to true will cause cache control to be added to the tool result. Caching is important for
-big results containing several files, to minimize API usage costs.
-
-
-""")
+@AnthropicTool("readFiles")
+@Description("Reads files from human's machine")
 data class ReadFiles(
-  val fileDescriptors: List<FileDescriptor>,
-  val cache: Boolean
+  @Description(
+    "The list of files to read. The order of text or image content elements " +
+      "in the returned tool result will match the order of requested files."
+  )
+  val files: List<File>,
+  @Description(
+    "Enabling cache parameter to true will cause cache control to be added to the tool result." +
+        "Caching is important for big results containing several files, to minimize API usage costs." +
+        "Defaults to false if omitted"
+  )
+  val cache: Boolean? = false
 ) : UsableTool {
 
   @OptIn(ExperimentalEncodingApi::class)
   override suspend fun use(toolUseId: String): ToolResult {
-    val content = fileDescriptors.map { descriptor ->
-      val file = Path(descriptor.path)
+    val content = files.map { file ->
+      val file = Path(file.path)
       println("[Tool:ReadTextFiles] $file")
       val data = SystemFileSystem.source(file).buffered().use {
         it.readByteArray()
@@ -58,20 +51,28 @@ data class ReadFiles(
     return ToolResult(
       toolUseId = toolUseId,
       content = content,
-      cacheControl =
-        if (cache) CacheControl(type = CacheControl.Type.EPHEMERAL)
-        else null
+      cacheControl = null
+//        if (cache) CacheControl(type = CacheControl.Type.EPHEMERAL)
+//        else null
     )
   }
 
+  @Serializable
+  @SerialName("file")
+  data class File(
+    @Description("The path of the file to read")
+    val path: String,
+    @Description(
+      "True if the file should be read as a base64 encoded string. " +
+          "This might be useful for binary files." +
+          "Defaults to false if not specified."
+    )
+    val base64: Boolean? = false
+  )
+
 }
 
-@Serializable
-@SerialName("FileDescriptor") //TODO what's default serial name
-data class FileDescriptor(
-  val path: String,
-  val base64: Boolean = false
-)
+
 
 private fun ByteArray.hasImageMediaType() = ImageFormatMagic.isImage(this)?.mediaType
 

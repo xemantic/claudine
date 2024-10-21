@@ -5,6 +5,7 @@ import com.xemantic.anthropic.message.ToolResult
 import java.io.File
 import java.util.concurrent.TimeUnit
 
+
 actual fun executeShell(
   toolUseId: String,
   command: String,
@@ -13,9 +14,9 @@ actual fun executeShell(
 ): ToolResult = ProcessBuilder(
   listOf("sh", "-c", command)
 )
-  .directory(File(if (workingDir == "~") System.getProperty("user.home")!! else workingDir))
+  .directory(workingDir.sanitizeWorkDir())
+  .redirectErrorStream(true)
   .redirectOutput(ProcessBuilder.Redirect.PIPE)
-  .redirectError(ProcessBuilder.Redirect.PIPE)
   .start().let {
     it.waitFor(timeout.toLong(), TimeUnit.SECONDS)
 
@@ -28,3 +29,7 @@ actual fun executeShell(
       )
     )
   }
+
+private val userHomeDir = System.getProperty("user.home")!! // it must exist
+
+private fun String.sanitizeWorkDir() = File(if (this == "~") userHomeDir else this)

@@ -6,7 +6,7 @@ import com.xemantic.anthropic.message.Text
 import com.xemantic.anthropic.message.ToolResult
 import com.xemantic.anthropic.message.ToolUse
 import com.xemantic.anthropic.message.plusAssign
-import com.xemantic.claudine.tool.CreateFile
+import com.xemantic.claudine.tool.CreateFiles
 import com.xemantic.claudine.tool.ExecuteShellCommand
 import com.xemantic.claudine.tool.ReadFiles
 import kotlinx.coroutines.runBlocking
@@ -17,7 +17,7 @@ fun main() = runBlocking {
     anthropicBeta = "prompt-caching-2024-07-31"
     tool<ExecuteShellCommand>()
     tool<ReadFiles>()
-    tool<CreateFile>()
+    tool<CreateFiles>()
   }
 
   println("Connecting human and human's machine to Claude AI")
@@ -50,18 +50,20 @@ fun main() = runBlocking {
             println("[Claude]: ${it.text}")
           }
           is ToolUse -> {
-            println("[ToolUse]: $it")
-            println("[ToolUse]: Do you allow Claude to execute this command? [yes/no]")
-            print("> ")
-            val confirmLine = readln()
-            val result = if (confirmLine == "yes") {
-              it.use()
-            } else {
-              ToolResult(
-                toolUseId = it.id,
-                "Human refused to run this command on their machine"
-              )
-            }
+            println(it)
+//            println("[ToolUse]: Do you allow Claude to execute this command? [yes/no]")
+//            print("> ")
+//            val confirmLine = readln()
+            //val result = if (confirmLine == "yes") {
+            val result = it.use()
+            println(result)
+
+//            } else {
+//              ToolResult(
+//                toolUseId = it.id,
+//                "Human refused to run this command on their machine"
+//              )
+//            }
             toolResults += result
           }
           else -> println("Unexpected content type: $it")
