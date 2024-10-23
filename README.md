@@ -4,6 +4,10 @@ Claudine, the only AI assistant you will ever need. An AI agent, which is using 
 as a window to external world, therefore perceiving your reality, values and needs, and reasoning
 how to fulfill them.
 
+> [!IMPORTANT]
+> I am teaching how to use Anthropic API with Claudine in Berlin. 
+> [Check out the workshop page](https://xemantic.com/workshops/2024/agentic-ai-for-artists-2024-10-26/).
+
 ## How to use Claudine?
 
 :warning: I am working on packaging Claudine as a small native executable for each platform,
