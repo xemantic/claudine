@@ -12,28 +12,25 @@ import kotlinx.io.writeString
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
-// TODO it should be replaced with CreateFiles
-@AnthropicTool("CreateFile")
-@Description("""
-## Creates a file
-
-A file, named according to the path, containing the content, will be created on human's machine.
-
-A binary data content can be created with a combination of Base64 encoded content and optional base64 parameter set to true.
-The base64 parameter defaults to false.
-"""
-)
+@AnthropicTool("createFile")
+@Description("Creates a file on human's machine")
 data class CreateFile(
+  @Description("Full path of the file")
   val path: String,
+  @Description("The content to write")
   val content: String,
-  val base64: Boolean = false,
+  @Description(
+    "If the file content is binary, it will be transferred as Base64 encoded string." +
+          "Defaults to false if omitted."
+  )
+  val base64: Boolean? = false,
 ) : UsableTool {
 
   @OptIn(ExperimentalEncodingApi::class)
   override suspend fun use(toolUseId: String): ToolResult {
     val file = Path(path = path)
     SystemFileSystem.sink(file).buffered().use { sink ->
-      if (base64) {
+      if (base64 == true) {
         sink.write(Base64.decode(content))
       } else {
         sink.writeString(content)
