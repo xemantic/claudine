@@ -38,7 +38,7 @@ kotlin {
       }
     }
 
-    val jvmAndPosix by creating {
+    val jvmAndPosixMain by creating {
       dependsOn(commonMain.get())
       dependencies {
         implementation(libs.kotlinx.serialization.json) // TODO is it runtimeOnly?
@@ -49,7 +49,7 @@ kotlin {
     }
 
     jvmMain {
-      dependsOn(jvmAndPosix)
+      dependsOn(jvmAndPosixMain)
       dependencies {
         implementation(libs.ktor.client.java)
         implementation(libs.ktor.client.core)
@@ -64,7 +64,7 @@ kotlin {
     }
 
     nativeMain {
-      dependsOn(jvmAndPosix)
+      dependsOn(jvmAndPosixMain)
     }
 
     linuxMain {

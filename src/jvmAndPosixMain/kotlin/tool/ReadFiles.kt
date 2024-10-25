@@ -35,7 +35,6 @@ data class ReadFiles(
   override suspend fun use(toolUseId: String): ToolResult {
     val content = fileDescriptors.map { descriptor ->
       val file = Path(descriptor.path)
-      println("[Tool:ReadTextFiles] $file")
       val data = SystemFileSystem.source(file).buffered().use {
         it.readByteArray()
       }

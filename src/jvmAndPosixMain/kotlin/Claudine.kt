@@ -11,7 +11,9 @@ import com.xemantic.claudine.tool.ExecuteShellCommand
 import com.xemantic.claudine.tool.ReadFiles
 import kotlinx.coroutines.runBlocking
 
-fun main() = runBlocking {
+fun main(args: Array<String>) = runBlocking {
+
+  val autoConfirmToolUse = args.isNotEmpty() && args[0] == "-y"
 
   val client = Anthropic {
     anthropicBeta = "prompt-caching-2024-07-31"
@@ -52,16 +54,22 @@ fun main() = runBlocking {
           }
           is ToolUse -> {
             println("[ToolUse]: $it")
-            println("[ToolUse]: Can I use this tool? [yes/exit/or type a reason not to run it]")
-            print("> ")
-            val result = when (val confirmLine = readln()) {
-              "yes" -> it.use()
-              "exit" -> return@runBlocking
-              else -> ToolResult(
-                toolUseId = it.id,
-                "Human refused to run this command on their machine with the following reason: $confirmLine"
-              )
+
+            val result = if (autoConfirmToolUse) {
+              it.use()
+            } else {
+              println("[ToolUse]: Can I use this tool? [yes/exit/or type a reason not to run it]")
+              print("> ")
+              when (val confirmLine = readln()) {
+                "yes" -> it.use()
+                "exit" -> return@runBlocking
+                else -> ToolResult(
+                  toolUseId = it.id,
+                  "Human refused to run this command on their machine with the following reason: $confirmLine"
+                )
+              }
             }
+
             println("[ToolResult]: $result")
             toolResults += result
           }
