@@ -15,7 +15,7 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 @AnthropicTool("createFile")
 @Description("Creates a file on human's machine")
 data class CreateFile(
-  @Description("Full path of the file")
+  @Description("The absolute path of the file")
   val path: String,
   @Description("The content to write")
   val content: String,
