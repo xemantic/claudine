@@ -9,7 +9,9 @@ kotlinxIo = "0.5.4"
 
 ktor = "3.0.0"
 
-anthropicSdkKotlin = "0.5.0"
+kotest = "6.0.0.M1"
+
+anthropicSdkKotlin = "0.6.0"
 
 kotlinLogging = "7.0.0"
 log4j = "2.24.1"
@@ -30,6 +32,8 @@ log4j-slf4j2 = { group = "org.apache.logging.log4j", name = "log4j-slf4j2-impl",
 log4j-core = { group = "org.apache.logging.log4j", name = "log4j-core", version.ref = "log4j" }
 jackson-databind = { group = "com.fasterxml.jackson.core", name = "jackson-databind", version.ref = "jackson" }
 jackson-dataformat-yaml = { group = "com.fasterxml.jackson.dataformat", name = "jackson-dataformat-yaml", version.ref = "jackson" }
+
+kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }

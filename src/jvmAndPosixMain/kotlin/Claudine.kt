@@ -11,7 +11,9 @@ import com.xemantic.claudine.tool.ExecuteShellCommand
 import com.xemantic.claudine.tool.ReadFiles
 import kotlinx.coroutines.runBlocking
 
-fun main() = runBlocking {
+fun main(args: Array<String>) = runBlocking {
+
+  val autoConfirmToolUse = args.isNotEmpty() && args[0] == "-y"
 
   val client = Anthropic {
     anthropicBeta = "prompt-caching-2024-07-31"
@@ -33,13 +35,14 @@ fun main() = runBlocking {
 
     var continueRequest: Boolean
     do {
-
+      print("[Claude] ...Reasoning...")
       val response = client.messages.create {
         system(claudineSystemPrompt)
         messages = conversation
         maxTokens = 4096 * 2 // for the latest model
         useTools()
       }
+      println()
 
       conversation += response
 
@@ -50,22 +53,29 @@ fun main() = runBlocking {
             println("[Claude]: ${it.text}")
           }
           is ToolUse -> {
-            println("[ToolUse]: $it")
-            println("[ToolUse]: Do you allow Claude to execute this command? [yes/no]")
-            print("> ")
-            val confirmLine = readln()
-            val result = if (confirmLine == "yes") {
+            println(">>> $it")
+
+            val result = if (autoConfirmToolUse) {
               it.use()
             } else {
-              ToolResult(
-                toolUseId = it.id,
-                "Human refused to run this command on their machine"
-              )
+              println(">>> Can I use this tool? [yes/exit/or type a reason not to run it]")
+              print("> ")
+              when (val confirmLine = readln()) {
+                "yes" -> it.use()
+                "exit" -> return@runBlocking
+                else -> ToolResult(
+                  toolUseId = it.id,
+                  "Human refused to run this command on their machine with the following reason: $confirmLine"
+                )
+              }
             }
+            println()
+            println("<<< $result")
             toolResults += result
           }
           else -> println("Unexpected content type: $it")
         }
+        println()
       }
 
       continueRequest = toolResults.isNotEmpty()

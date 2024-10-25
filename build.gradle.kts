@@ -38,7 +38,7 @@ kotlin {
       }
     }
 
-    val jvmAndPosix by creating {
+    val jvmAndPosixMain by creating {
       dependsOn(commonMain.get())
       dependencies {
         implementation(libs.kotlinx.serialization.json) // TODO is it runtimeOnly?
@@ -48,8 +48,17 @@ kotlin {
       }
     }
 
+    val jvmAndPosixTest by creating {
+      dependsOn(commonTest.get())
+      dependencies {
+        implementation(libs.kotlin.test)
+        implementation(libs.kotlinx.io)
+        implementation(libs.kotest.assertions.core)
+      }
+    }
+
     jvmMain {
-      dependsOn(jvmAndPosix)
+      dependsOn(jvmAndPosixMain)
       dependencies {
         implementation(libs.ktor.client.java)
         implementation(libs.ktor.client.core)
@@ -63,8 +72,16 @@ kotlin {
       }
     }
 
+    jvmTest {
+      dependsOn(jvmAndPosixTest)
+    }
+
     nativeMain {
-      dependsOn(jvmAndPosix)
+      dependsOn(jvmAndPosixMain)
+    }
+
+    nativeTest {
+      dependsOn(jvmAndPosixTest)
     }
 
     linuxMain {

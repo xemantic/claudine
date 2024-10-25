@@ -6,19 +6,11 @@ import com.xemantic.anthropic.tool.AnthropicTool
 import com.xemantic.anthropic.tool.UsableTool
 
 @AnthropicTool("ExecuteShellCommand")
-@Description("""
-## Execute shell command
-
-Executes given shell command on human's machine.
- 
-The timeout is defined in seconds.
-
-When using this command for listing files, try to minimize the amount of executions in favor of
-recursive lists with depth of max 2 levels.
-""")
+@Description("Executes given shell command on human's machine")
 data class ExecuteShellCommand(
   val command: String,
   val workingDir: String,
+  @Description("The timeout is defined in seconds")
   val timeout: Int
 ) : UsableTool {
 

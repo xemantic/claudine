@@ -17,36 +17,25 @@ import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 @AnthropicTool("ReadFiles")
-@Description("""
-## Reads files
-
-Reads specified files from human's machine.
- 
-The files are read according to the list of specified file descriptors. Each descriptor refers to the file path
-and an optional base64 flag, which defaults to false. If base64 is set to true, the file will be encoded
-with Base64.
-
-The order of text or image content elements in the returned tool result will match the order of requested files.
-
-Setting cache parameter to true will cause cache control to be added to the tool result. Caching is important for
-big results containing several files, to minimize API usage costs.
-
-
-""")
+@Description("Reads files from human's machine")
 data class ReadFiles(
+  @Description(
+    "The list of file descriptors. " +
+        "The order of file content in tool result will much the order of file descriptors."
+  )
   val fileDescriptors: List<FileDescriptor>,
-  val cache: Boolean
+  @Description(
+    "Indicates whether tool result of reading the files should be cached or not. " +
+        "Defaults to false if omitted."
+  )
+  val cache: Boolean? = false
 ) : UsableTool {
 
   @OptIn(ExperimentalEncodingApi::class)
   override suspend fun use(toolUseId: String): ToolResult {
     val content = fileDescriptors.map { descriptor ->
-      val file = Path(descriptor.path)
-      println("[Tool:ReadTextFiles] $file")
-      val data = SystemFileSystem.source(file).buffered().use {
-        it.readByteArray()
-      }
-      val mediaType = data.hasImageMediaType()
+      val data = Path(descriptor.path).toBytes()
+      val mediaType = data.maybeImageMediaType()
       if (mediaType != null) {
         val content = Base64.encode(data)
         Image(Image.Source(mediaType = mediaType, data = content))
@@ -59,27 +48,39 @@ data class ReadFiles(
       toolUseId = toolUseId,
       content = content,
       cacheControl =
-        if (cache) CacheControl(type = CacheControl.Type.EPHEMERAL)
+        if (cache == true) CacheControl(type = CacheControl.Type.EPHEMERAL)
         else null
     )
   }
 
 }
 
+fun Path.toBytes(): ByteArray = SystemFileSystem.source(this).buffered().use {
+  it.readByteArray()
+}
+
 @Serializable
-@SerialName("FileDescriptor") //TODO what's default serial name
+@SerialName("fileDescriptor")
+@Description("Describes the file to read")
 data class FileDescriptor(
   val path: String,
-  val base64: Boolean = false
+  @Description(
+    "If true, the file read result will be encoded as Base64 string, which is useful" +
+        "for binary files. " +
+        "Defaults to false if omitted. " +
+        "Image files of supported formats will be encoded regardless of the value of this flag. "
+  )
+  val base64: Boolean? = false
 )
 
-private fun ByteArray.hasImageMediaType() = ImageFormatMagic.isImage(this)?.mediaType
+// visible for testing
+internal fun ByteArray.maybeImageMediaType() = ImageFormatMagic.findMagic(this)?.mediaType
 
 fun ByteArray.startsWith(
   prefix: ByteArray
 ): Boolean =
   (size >= prefix.size)
-      && slice(0 until prefix.size)
+      && slice(prefix.indices)
         .toByteArray()
         .contentEquals(prefix)
 
@@ -98,14 +99,14 @@ enum class ImageFormatMagic(
   JPEG(Image.MediaType.IMAGE_JPEG, 0xFFu, 0xD8u, 0xFFu),
   PNG(Image.MediaType.IMAGE_PNG, 0x89u, 0x50u, 0x4Eu, 0x47u, 0x0Du, 0x0Au, 0x1Au, 0x0Au),
   GIF(Image.MediaType.IMAGE_GIF, *"GIF8".toUByteArray()),
-  WEBP(Image.MediaType.IMAGE_GIF, *"WEBP".toUByteArray(), test = { magic, data ->
+  WEBP(Image.MediaType.IMAGE_WEBP, *"WEBP".toUByteArray(), test = { data, magic ->
     (data.size >= 12) && data.slice(8..11).toByteArray().contentEquals(magic)
   });
 
   private val magic = magic.toUByteArray()
 
   companion object {
-    fun isImage(data: ByteArray): ImageFormatMagic? =
+    fun findMagic(data: ByteArray): ImageFormatMagic? =
       if (data.size < 12) null
       else entries.find { it.test(data, it.magic.toByteArray()) }
   }
