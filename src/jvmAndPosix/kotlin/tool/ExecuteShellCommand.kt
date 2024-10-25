@@ -5,7 +5,7 @@ import com.xemantic.anthropic.schema.Description
 import com.xemantic.anthropic.tool.AnthropicTool
 import com.xemantic.anthropic.tool.UsableTool
 
-@AnthropicTool("executeShellCommand")
+@AnthropicTool("ExecuteShellCommand")
 @Description("Executes given shell command on human's machine")
 data class ExecuteShellCommand(
   val command: String,

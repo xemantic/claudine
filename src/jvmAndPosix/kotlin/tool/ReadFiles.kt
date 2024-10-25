@@ -16,7 +16,7 @@ import kotlinx.serialization.Serializable
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
-@AnthropicTool("readFiles")
+@AnthropicTool("ReadFiles")
 @Description("Reads files from human's machine")
 data class ReadFiles(
   @Description(

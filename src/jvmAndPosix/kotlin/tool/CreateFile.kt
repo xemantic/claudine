@@ -12,7 +12,7 @@ import kotlinx.io.writeString
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
-@AnthropicTool("createFile")
+@AnthropicTool("CreateFile")
 @Description("Creates a file on human's machine")
 data class CreateFile(
   @Description("The absolute path of the file")
