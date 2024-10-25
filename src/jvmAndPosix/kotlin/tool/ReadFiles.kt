@@ -16,26 +16,19 @@ import kotlinx.serialization.Serializable
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
-@AnthropicTool("ReadFiles")
-@Description("""
-## Reads files
-
-Reads specified files from human's machine.
- 
-The files are read according to the list of specified file descriptors. Each descriptor refers to the file path
-and an optional base64 flag, which defaults to false. If base64 is set to true, the file will be encoded
-with Base64.
-
-The order of text or image content elements in the returned tool result will match the order of requested files.
-
-Setting cache parameter to true will cause cache control to be added to the tool result. Caching is important for
-big results containing several files, to minimize API usage costs.
-
-
-""")
+@AnthropicTool("readFiles")
+@Description("Reads files from human's machine")
 data class ReadFiles(
+  @Description(
+    "The list of file descriptors. " +
+        "The order of file content in tool result will much the order of file descriptors."
+  )
   val fileDescriptors: List<FileDescriptor>,
-  val cache: Boolean
+  @Description(
+    "Indicates whether tool result of reading the files should be cached or not. " +
+        "Defaults to false if omitted."
+  )
+  val cache: Boolean? = false
 ) : UsableTool {
 
   @OptIn(ExperimentalEncodingApi::class)
@@ -59,7 +52,7 @@ data class ReadFiles(
       toolUseId = toolUseId,
       content = content,
       cacheControl =
-        if (cache) CacheControl(type = CacheControl.Type.EPHEMERAL)
+        if (cache == true) CacheControl(type = CacheControl.Type.EPHEMERAL)
         else null
     )
   }
@@ -67,10 +60,17 @@ data class ReadFiles(
 }
 
 @Serializable
-@SerialName("FileDescriptor") //TODO what's default serial name
+@SerialName("fileDescriptor")
+@Description("Describes the file to read")
 data class FileDescriptor(
   val path: String,
-  val base64: Boolean = false
+  @Description(
+    "If true, the file read result will be encoded as Base64 string, which is useful" +
+        "for binary files. " +
+        "Defaults to false if omitted. " +
+        "Image files of supported formats will be encoded regardless of the value of this flag. "
+  )
+  val base64: Boolean? = false
 )
 
 private fun ByteArray.hasImageMediaType() = ImageFormatMagic.isImage(this)?.mediaType
@@ -79,7 +79,7 @@ fun ByteArray.startsWith(
   prefix: ByteArray
 ): Boolean =
   (size >= prefix.size)
-      && slice(0 until prefix.size)
+      && slice(prefix.indices)
         .toByteArray()
         .contentEquals(prefix)
 
