@@ -51,17 +51,17 @@ fun main() = runBlocking {
           }
           is ToolUse -> {
             println("[ToolUse]: $it")
-            println("[ToolUse]: Do you allow Claude to execute this command? [yes/no]")
+            println("[ToolUse]: Can I use this tool? [yes/exit/or type a reason not to run it]")
             print("> ")
-            val confirmLine = readln()
-            val result = if (confirmLine == "yes") {
-              it.use()
-            } else {
-              ToolResult(
+            val result = when (val confirmLine = readln()) {
+              "yes" -> it.use()
+              "exit" -> return@runBlocking
+              else -> ToolResult(
                 toolUseId = it.id,
-                "Human refused to run this command on their machine"
+                "Human refused to run this command on their machine with the following reason: $confirmLine"
               )
             }
+            println("[ToolResult]: $result")
             toolResults += result
           }
           else -> println("Unexpected content type: $it")
