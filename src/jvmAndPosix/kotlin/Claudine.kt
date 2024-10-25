@@ -33,13 +33,14 @@ fun main() = runBlocking {
 
     var continueRequest: Boolean
     do {
-
+      print("[Claude] ...Reasoning...")
       val response = client.messages.create {
         system(claudineSystemPrompt)
         messages = conversation
         maxTokens = 4096 * 2 // for the latest model
         useTools()
       }
+      println()
 
       conversation += response
 
@@ -66,6 +67,7 @@ fun main() = runBlocking {
           }
           else -> println("Unexpected content type: $it")
         }
+        println()
       }
 
       continueRequest = toolResults.isNotEmpty()
