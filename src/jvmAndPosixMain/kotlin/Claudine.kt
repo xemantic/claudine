@@ -53,12 +53,12 @@ fun main(args: Array<String>) = runBlocking {
             println("[Claude]: ${it.text}")
           }
           is ToolUse -> {
-            println("[ToolUse]: $it")
+            println(">>> $it")
 
             val result = if (autoConfirmToolUse) {
               it.use()
             } else {
-              println("[ToolUse]: Can I use this tool? [yes/exit/or type a reason not to run it]")
+              println(">>> Can I use this tool? [yes/exit/or type a reason not to run it]")
               print("> ")
               when (val confirmLine = readln()) {
                 "yes" -> it.use()
@@ -69,8 +69,8 @@ fun main(args: Array<String>) = runBlocking {
                 )
               }
             }
-
-            println("[ToolResult]: $result")
+            println()
+            println("<<< $result")
             toolResults += result
           }
           else -> println("Unexpected content type: $it")

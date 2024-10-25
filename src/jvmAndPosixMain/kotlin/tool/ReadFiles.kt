@@ -34,11 +34,8 @@ data class ReadFiles(
   @OptIn(ExperimentalEncodingApi::class)
   override suspend fun use(toolUseId: String): ToolResult {
     val content = fileDescriptors.map { descriptor ->
-      val file = Path(descriptor.path)
-      val data = SystemFileSystem.source(file).buffered().use {
-        it.readByteArray()
-      }
-      val mediaType = data.hasImageMediaType()
+      val data = Path(descriptor.path).toBytes()
+      val mediaType = data.maybeImageMediaType()
       if (mediaType != null) {
         val content = Base64.encode(data)
         Image(Image.Source(mediaType = mediaType, data = content))
@@ -58,6 +55,10 @@ data class ReadFiles(
 
 }
 
+fun Path.toBytes(): ByteArray = SystemFileSystem.source(this).buffered().use {
+  it.readByteArray()
+}
+
 @Serializable
 @SerialName("fileDescriptor")
 @Description("Describes the file to read")
@@ -72,7 +73,8 @@ data class FileDescriptor(
   val base64: Boolean? = false
 )
 
-private fun ByteArray.hasImageMediaType() = ImageFormatMagic.isImage(this)?.mediaType
+// visible for testing
+internal fun ByteArray.maybeImageMediaType() = ImageFormatMagic.findMagic(this)?.mediaType
 
 fun ByteArray.startsWith(
   prefix: ByteArray
@@ -97,14 +99,14 @@ enum class ImageFormatMagic(
   JPEG(Image.MediaType.IMAGE_JPEG, 0xFFu, 0xD8u, 0xFFu),
   PNG(Image.MediaType.IMAGE_PNG, 0x89u, 0x50u, 0x4Eu, 0x47u, 0x0Du, 0x0Au, 0x1Au, 0x0Au),
   GIF(Image.MediaType.IMAGE_GIF, *"GIF8".toUByteArray()),
-  WEBP(Image.MediaType.IMAGE_GIF, *"WEBP".toUByteArray(), test = { magic, data ->
+  WEBP(Image.MediaType.IMAGE_WEBP, *"WEBP".toUByteArray(), test = { data, magic ->
     (data.size >= 12) && data.slice(8..11).toByteArray().contentEquals(magic)
   });
 
   private val magic = magic.toUByteArray()
 
   companion object {
-    fun isImage(data: ByteArray): ImageFormatMagic? =
+    fun findMagic(data: ByteArray): ImageFormatMagic? =
       if (data.size < 12) null
       else entries.find { it.test(data, it.magic.toByteArray()) }
   }

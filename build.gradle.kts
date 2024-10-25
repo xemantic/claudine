@@ -48,6 +48,15 @@ kotlin {
       }
     }
 
+    val jvmAndPosixTest by creating {
+      dependsOn(commonTest.get())
+      dependencies {
+        implementation(libs.kotlin.test)
+        implementation(libs.kotlinx.io)
+        implementation(libs.kotest.assertions.core)
+      }
+    }
+
     jvmMain {
       dependsOn(jvmAndPosixMain)
       dependencies {
@@ -63,8 +72,16 @@ kotlin {
       }
     }
 
+    jvmTest {
+      dependsOn(jvmAndPosixTest)
+    }
+
     nativeMain {
       dependsOn(jvmAndPosixMain)
+    }
+
+    nativeTest {
+      dependsOn(jvmAndPosixTest)
     }
 
     linuxMain {
