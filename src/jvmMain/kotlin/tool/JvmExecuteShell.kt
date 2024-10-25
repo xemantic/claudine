@@ -2,6 +2,7 @@ package com.xemantic.claudine.tool
 
 import com.xemantic.anthropic.message.Text
 import com.xemantic.anthropic.message.ToolResult
+import com.xemantic.claudine.system.operatingSystem
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -10,12 +11,8 @@ actual fun executeShell(
   command: String,
   workingDir: String,
   timeout: Int
-): ToolResult = ProcessBuilder(
-  listOf("sh", "-c", command)
-)
-  .directory(File(
-    workingDir.sanitizePath()
-  ))
+): ToolResult = ProcessBuilder(getShellCommand() + command)
+  .directory(File(workingDir.sanitizePath()))
   .redirectErrorStream(true)
   .redirectOutput(ProcessBuilder.Redirect.PIPE)
   .start().let {
@@ -30,6 +27,14 @@ actual fun executeShell(
       )
     )
   }
+
+private fun getShellCommand() = if (
+  operatingSystem.lowercase().contains("win")
+) {
+  listOf("powershell.exe", "-Command")
+} else {
+  listOf("sh", "-c")
+}
 
 private val userHomeDir = System.getProperty("user.home")!! // it must exist
 
