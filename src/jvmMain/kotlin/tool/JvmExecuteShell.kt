@@ -13,7 +13,9 @@ actual fun executeShell(
 ): ToolResult = ProcessBuilder(
   listOf("sh", "-c", command)
 )
-  .directory(workingDir.sanitizeWorkDir())
+  .directory(File(
+    workingDir.sanitizePath()
+  ))
   .redirectErrorStream(true)
   .redirectOutput(ProcessBuilder.Redirect.PIPE)
   .start().let {
@@ -31,4 +33,5 @@ actual fun executeShell(
 
 private val userHomeDir = System.getProperty("user.home")!! // it must exist
 
-private fun String.sanitizeWorkDir() = File(if (this == "~") userHomeDir else this)
+private fun String.sanitizePath(): String =
+  if (startsWith("~")) replace("~", userHomeDir) else this
