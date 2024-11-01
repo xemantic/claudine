@@ -39,12 +39,12 @@ Let's substitute these variables with something concrete:
 Claudine can "reason", as much as Claude LLM can reason, so you can have any typical interaction
 like with a conversational bot. In addition, it can also use these 3 tools:
 
-* [ReadFiles](src/jvmAndPosix/kotlin/tool/ReadFiles.kt)
-* [CreateFile](src/jvmAndPosix/kotlin/tool/CreateFile.kt)
-* [ExecuteShellCommand](src/jvmAndPosix/kotlin/tool/ExecuteShellCommand.kt)
+* [ReadFiles](src/jvmAndPosixMain/kotlin/tool/ReadFiles.kt)
+* [CreateFile](src/jvmAndPosixMain/kotlin/tool/CreateFile.kt)
+* [ExecuteShellCommand](src/jvmAndPosixMain/kotlin/tool/ExecuteShellCommand.kt)
 
 Just these 3, and the
-[system prompt](src/jvmAndPosix/kotlin/ClaudineCliSystemPrompt.kt), allow Claudine to:
+[system prompt](src/jvmAndPosixMain/kotlin/ClaudineCliSystemPrompt.kt), allow Claudine to:
 
 * Completely administer your computer and answer any question related to it's state.
 * Analyze your files according to your instructions.
