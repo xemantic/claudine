@@ -1,6 +1,6 @@
 package com.xemantic.claudine.tool
 
-import com.xemantic.anthropic.message.Image
+import com.xemantic.anthropic.image.Image
 import io.kotest.matchers.shouldBe
 import kotlinx.io.files.Path
 import kotlin.test.Test

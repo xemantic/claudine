@@ -1,7 +1,7 @@
 package com.xemantic.claudine.tool
 
-import com.xemantic.anthropic.message.Text
-import com.xemantic.anthropic.message.ToolResult
+import com.xemantic.anthropic.text.Text
+import com.xemantic.anthropic.tool.ToolResult
 import com.xemantic.claudine.system.operatingSystem
 import java.io.File
 import java.util.concurrent.TimeUnit

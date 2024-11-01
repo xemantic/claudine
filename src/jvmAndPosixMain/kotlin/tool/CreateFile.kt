@@ -1,10 +1,10 @@
 package com.xemantic.claudine.tool
 
-import com.xemantic.anthropic.message.Text
-import com.xemantic.anthropic.message.ToolResult
 import com.xemantic.anthropic.schema.Description
+import com.xemantic.anthropic.text.Text
 import com.xemantic.anthropic.tool.AnthropicTool
-import com.xemantic.anthropic.tool.UsableTool
+import com.xemantic.anthropic.tool.ToolInput
+import com.xemantic.anthropic.tool.ToolResult
 import kotlinx.io.buffered
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
@@ -15,7 +15,7 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 @AnthropicTool("CreateFile")
 @Description("Creates a file on human's machine")
 data class CreateFile(
-  @Description("The absolute path of the file")
+  @Description("The absolute file path")
   val path: String,
   @Description("The content to write")
   val content: String,
@@ -24,7 +24,7 @@ data class CreateFile(
           "Defaults to false if omitted."
   )
   val base64: Boolean? = false,
-) : UsableTool {
+) : ToolInput {
 
   @OptIn(ExperimentalEncodingApi::class)
   override suspend fun use(toolUseId: String): ToolResult {

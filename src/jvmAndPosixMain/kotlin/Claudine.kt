@@ -2,12 +2,13 @@ package com.xemantic.claudine
 
 import com.xemantic.anthropic.Anthropic
 import com.xemantic.anthropic.message.Message
-import com.xemantic.anthropic.message.Text
-import com.xemantic.anthropic.message.ToolResult
-import com.xemantic.anthropic.message.ToolUse
 import com.xemantic.anthropic.message.plusAssign
+import com.xemantic.anthropic.text.Text
+import com.xemantic.anthropic.tool.ToolResult
+import com.xemantic.anthropic.tool.ToolUse
 import com.xemantic.claudine.tool.CreateFile
 import com.xemantic.claudine.tool.ExecuteShellCommand
+import com.xemantic.claudine.tool.ReadBinaryFiles
 import com.xemantic.claudine.tool.ReadFiles
 import kotlinx.coroutines.runBlocking
 
@@ -20,6 +21,7 @@ fun main(args: Array<String>) = runBlocking {
     tool<ExecuteShellCommand>()
     tool<ReadFiles>()
     tool<CreateFile>()
+    tool<ReadBinaryFiles>()
   }
 
   println("Connecting human and human's machine to Claude AI")
@@ -40,7 +42,7 @@ fun main(args: Array<String>) = runBlocking {
         system(claudineSystemPrompt)
         messages = conversation
         maxTokens = 4096 * 2 // for the latest model
-        useTools()
+        allTools()
       }
       println()
 

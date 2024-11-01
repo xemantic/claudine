@@ -2,9 +2,9 @@ package com.xemantic.claudine
 
 import com.xemantic.anthropic.Anthropic
 import com.xemantic.anthropic.message.Message
-import com.xemantic.anthropic.message.Text
-import com.xemantic.anthropic.message.ToolResult
-import com.xemantic.anthropic.message.ToolUse
+import com.xemantic.anthropic.text.Text
+import com.xemantic.anthropic.tool.ToolResult
+import com.xemantic.anthropic.tool.ToolUse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -28,7 +28,7 @@ fun Flow<String>.claudine(
         system(systemPrompt)
         messages = conversation
         maxTokens = 4096 * 2
-        useTools()
+        allTools()
       }
 
       conversation += response.asMessage()
