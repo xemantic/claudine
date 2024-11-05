@@ -12,7 +12,7 @@ fun main(args: Array<String>) {
   val autoConfirmToolUse = args.isNotEmpty() && args[0] == "-y"
 
   val anthropic = Anthropic {
-    anthropicBeta = "prompt-caching-2024-07-31"
+    anthropicBeta = "pdfs-2024-09-25,prompt-caching-2024-07-31"
     tool<ExecuteShellCommand>()
     tool<ReadFiles>()
     tool<CreateFile>()

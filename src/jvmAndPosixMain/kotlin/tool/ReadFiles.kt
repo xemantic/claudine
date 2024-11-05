@@ -2,15 +2,10 @@ package com.xemantic.claudine.tool
 
 import com.xemantic.anthropic.cache.CacheControl
 import com.xemantic.anthropic.schema.Description
-import com.xemantic.anthropic.text.Text
 import com.xemantic.anthropic.tool.AnthropicTool
 import com.xemantic.anthropic.tool.ToolInput
-import com.xemantic.anthropic.tool.ToolResult
-import kotlinx.io.buffered
+import com.xemantic.claudine.files.readText
 import kotlinx.io.files.Path
-import kotlinx.io.files.SystemFileSystem
-import kotlinx.io.readString
-import kotlin.io.encoding.ExperimentalEncodingApi
 
 @AnthropicTool("ReadFiles")
 @Description(
@@ -28,16 +23,16 @@ data class ReadFiles(
         "Defaults to false if omitted."
   )
   val cache: Boolean? = false
-) : ToolInput {
+) : ToolInput() {
 
-  @OptIn(ExperimentalEncodingApi::class)
-  override suspend fun use(toolUseId: String) = ToolResult(
-    toolUseId = toolUseId,
-    content = listOf(Text(text = paths.toContent())),
-    cacheControl =
-      if (cache == true) CacheControl(type = CacheControl.Type.EPHEMERAL)
-      else null
-  )
+  init {
+    use {
+      cacheControl =
+        if (cache == true) CacheControl(type = CacheControl.Type.EPHEMERAL)
+        else null
+      paths.toContent()
+    }
+  }
 
 }
 
@@ -48,10 +43,4 @@ private fun List<String>.toContent() = joinToString(separator = "\n") { path ->
   } catch (e: Exception) {
     "<file path=\"$path\" error=\"${e.message}\"></file>"
   }
-}
-
-fun Path.readText() = SystemFileSystem.source(
-  this
-).buffered().use {
-  it.readString()
 }

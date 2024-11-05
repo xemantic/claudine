@@ -1,17 +1,23 @@
 package com.xemantic.claudine.tool
 
 import com.xemantic.anthropic.cache.CacheControl
+import com.xemantic.anthropic.content.Image
+import com.xemantic.anthropic.content.Text
+import com.xemantic.anthropic.content.isImage
 import com.xemantic.anthropic.schema.Description
-import com.xemantic.anthropic.text.Text
 import com.xemantic.anthropic.tool.AnthropicTool
 import com.xemantic.anthropic.tool.ToolInput
-import com.xemantic.anthropic.tool.ToolResult
+import com.xemantic.claudine.files.toBytes
 import kotlinx.io.files.Path
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
+@OptIn(ExperimentalEncodingApi::class)
 @AnthropicTool("ReadBinaryFiles")
-@Description("Reads binary files from human's machine. The contents of the files is Base64 encoded.")
+@Description(
+  "Reads binary files from human's machine, so they can be analyzed by the LLM. " +
+      "Image formats supported by Claude will be provided according to their respective content types. " +
+      "The contents of other types of files will transferred as Base64 encoded text content.")
 data class ReadBinaryFiles(
   @Description(
     "The list of absolute file paths. " +
@@ -23,22 +29,29 @@ data class ReadBinaryFiles(
         "Defaults to false if omitted."
   )
   val cache: Boolean? = false
-) : ToolInput {
+) : ToolInput() {
 
-  @OptIn(ExperimentalEncodingApi::class)
-  override suspend fun use(toolUseId: String): ToolResult {
-    val content = paths.map { path ->
-      val data = Path(path).toBytes()
-      val content = Base64.encode(data)
-      Text(text = content)
-    }
-    return ToolResult(
-      toolUseId = toolUseId,
-      content = content,
+  init {
+    use {
+      paths.forEach { path ->
+        val bytes = Path(path).toBytes()
+        when {
+          bytes.isImage -> {
+            +Image(path)
+          }
+          // The PDF in tool result is still not supported
+//          bytes.isDocument -> {
+//            +Document(path)
+//          }
+          else -> {
+            +Text(text = Base64.encode(bytes))
+          }
+        }
+      }
       cacheControl =
         if (cache == true) CacheControl(type = CacheControl.Type.EPHEMERAL)
         else null
-    )
+    }
   }
 
 }

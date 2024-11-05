@@ -1,11 +1,11 @@
 package com.xemantic.claudine
 
 import com.xemantic.anthropic.Anthropic
+import com.xemantic.anthropic.content.Text
+import com.xemantic.anthropic.content.ToolResult
+import com.xemantic.anthropic.content.ToolUse
 import com.xemantic.anthropic.message.Message
 import com.xemantic.anthropic.message.plusAssign
-import com.xemantic.anthropic.text.Text
-import com.xemantic.anthropic.tool.ToolResult
-import com.xemantic.anthropic.tool.ToolUse
 
 suspend fun claudine(
   anthropic: Anthropic,
@@ -48,21 +48,20 @@ suspend fun claudine(
             println(">>> $it")
 
             val result = if (autoConfirmToolUse) {
-              it.use()
+                it.use()
             } else {
               println(">>> Can I use this tool? [yes/exit/or type a reason not to run it]")
               print("> ")
               when (val confirmLine = readln()) {
                 "yes" -> it.use()
                 "exit" -> return
-                else -> ToolResult(
-                  toolUseId = it.id,
+                else -> ToolResult(toolUseId = it.id) {
                   "Human refused to run this command on their machine with the following reason: $confirmLine"
-                )
+                }
               }
             }
             println()
-            println("<<< $result")
+            //println("<<< $result")
             toolResults += result
           }
           else -> println("Unexpected content type: $it")

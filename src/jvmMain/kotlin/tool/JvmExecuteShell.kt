@@ -1,31 +1,20 @@
 package com.xemantic.claudine.tool
 
-import com.xemantic.anthropic.text.Text
-import com.xemantic.anthropic.tool.ToolResult
 import com.xemantic.claudine.system.operatingSystem
 import java.io.File
 import java.util.concurrent.TimeUnit
 
 actual fun executeShell(
-  toolUseId: String,
   command: String,
   workingDir: String,
   timeout: Int
-): ToolResult = ProcessBuilder(getShellCommand() + command)
+): String = ProcessBuilder(getShellCommand() + command)
   .directory(File(workingDir.sanitizePath()))
   .redirectErrorStream(true)
   .redirectOutput(ProcessBuilder.Redirect.PIPE)
   .start().let {
     it.waitFor(timeout.toLong(), TimeUnit.SECONDS)
-
-    ToolResult(
-      toolUseId = toolUseId,
-      content = listOf(
-        Text(
-          text = it.inputStream.bufferedReader().readText()
-        )
-      )
-    )
+    it.inputStream.bufferedReader().readText()
   }
 
 private fun getShellCommand() = if (

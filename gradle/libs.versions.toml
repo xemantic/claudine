@@ -11,7 +11,7 @@ ktor = "3.0.0"
 
 kotest = "6.0.0.M1"
 
-anthropicSdkKotlin = "0.7.0"
+anthropicSdkKotlin = "0.10-SNAPSHOT"
 
 kotlinLogging = "7.0.0"
 log4j = "2.24.1"

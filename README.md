@@ -18,6 +18,13 @@ until this happens, it has to run on the JVM.
 java -jar build/libs/claudine-jvm-0.1-SNAPSHOT.jar
 ```
 
+The first time you run claudine, you will see a message that you need ANTHROPIC_API_KEY. It can be obtained
+from [Anthropic console](https://console.anthropic.com/) and then provided with:
+
+```shell
+export ANTHROPIC_API_KEY=your_key_goes_here
+```
+
 The rest is self-explanatory - just talk with Claudine as a proxy to Claude.
 
 ## Who is Claudine?
