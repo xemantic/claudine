@@ -12,7 +12,6 @@ import kotlinx.io.files.Path
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
-@OptIn(ExperimentalEncodingApi::class)
 @AnthropicTool("ReadBinaryFiles")
 @Description(
   "Reads binary files from human's machine, so they can be analyzed by the LLM. " +
@@ -44,6 +43,7 @@ data class ReadBinaryFiles(
 //            +Document(path)
 //          }
           else -> {
+            @OptIn(ExperimentalEncodingApi::class)
             +Text(text = Base64.encode(bytes))
           }
         }
