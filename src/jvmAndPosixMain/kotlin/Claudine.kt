@@ -17,6 +17,9 @@ fun main(args: Array<String>) {
     tool<ReadFiles>()
     tool<CreateFile>()
     tool<ReadBinaryFiles>()
+//    tool<RecursiveSession> {
+//      //this.anthropic = this@Anthropic
+//    }
   }
 
   runBlocking {
