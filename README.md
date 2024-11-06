@@ -44,14 +44,16 @@ Let's substitute these variables with something concrete:
 * Your hard drive provides a vast supply of zeros and ones to the model.
 
 Claudine can "reason", as much as Claude LLM can reason, so you can have any typical interaction
-like with a conversational bot. In addition, it can also use these 3 tools:
+like with a conversational bot. In addition, it can also use these tools:
 
 * [ReadFiles](src/jvmAndPosixMain/kotlin/tool/ReadFiles.kt)
+* [ReadBinaryFiles](src/jvmAndPosixMain/kotlin/tool/ReadBinaryFiles.kt)
 * [CreateFile](src/jvmAndPosixMain/kotlin/tool/CreateFile.kt)
 * [ExecuteShellCommand](src/jvmAndPosixMain/kotlin/tool/ExecuteShellCommand.kt)
 
-Just these 3, and the
-[system prompt](src/jvmAndPosixMain/kotlin/ClaudineCliSystemPrompt.kt), allow Claudine to:
+Just these tools, and the
+[system prompt](src/jvmAndPosixMain/kotlin/ClaudineCliSystemPrompt.kt)
+, allow Claudine to:
 
 * Completely administer your computer and answer any question related to it's state.
 * Analyze your files according to your instructions.
