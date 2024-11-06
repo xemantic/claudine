@@ -18,6 +18,13 @@ until this happens, it has to run on the JVM.
 java -jar build/libs/claudine-jvm-0.1-SNAPSHOT.jar
 ```
 
+The first time you run claudine, you will see a message that you need ANTHROPIC_API_KEY. It can be obtained
+from [Anthropic console](https://console.anthropic.com/) and then provided with:
+
+```shell
+export ANTHROPIC_API_KEY=your_key_goes_here
+```
+
 The rest is self-explanatory - just talk with Claudine as a proxy to Claude.
 
 ## Who is Claudine?
@@ -37,14 +44,16 @@ Let's substitute these variables with something concrete:
 * Your hard drive provides a vast supply of zeros and ones to the model.
 
 Claudine can "reason", as much as Claude LLM can reason, so you can have any typical interaction
-like with a conversational bot. In addition, it can also use these 3 tools:
+like with a conversational bot. In addition, it can also use these tools:
 
-* [ReadFiles](src/jvmAndPosix/kotlin/tool/ReadFiles.kt)
-* [CreateFile](src/jvmAndPosix/kotlin/tool/CreateFile.kt)
-* [ExecuteShellCommand](src/jvmAndPosix/kotlin/tool/ExecuteShellCommand.kt)
+* [ReadFiles](src/jvmAndPosixMain/kotlin/tool/ReadFiles.kt)
+* [ReadBinaryFiles](src/jvmAndPosixMain/kotlin/tool/ReadBinaryFiles.kt)
+* [CreateFile](src/jvmAndPosixMain/kotlin/tool/CreateFile.kt)
+* [ExecuteShellCommand](src/jvmAndPosixMain/kotlin/tool/ExecuteShellCommand.kt)
 
-Just these 3, and the
-[system prompt](src/jvmAndPosix/kotlin/ClaudineCliSystemPrompt.kt), allow Claudine to:
+Just these tools, and the
+[system prompt](src/jvmAndPosixMain/kotlin/ClaudineCliSystemPrompt.kt)
+, allow Claudine to:
 
 * Completely administer your computer and answer any question related to it's state.
 * Analyze your files according to your instructions.

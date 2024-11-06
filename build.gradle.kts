@@ -1,8 +1,17 @@
+@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
+
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.kotlin.plugin.serialization)
   alias(libs.plugins.versions)
 }
+
+val javaTarget = libs.versions.javaTarget.get()
+val kotlinTarget = KotlinVersion.fromVersion(libs.versions.kotlinTarget.get())
 
 repositories {
   mavenCentral()
@@ -19,6 +28,13 @@ kotlin {
 //    mainRun {
 //      mainClass = "com.xemantic.claudine.ClaudineKt"
 //    }
+    compilerOptions {
+      apiVersion = kotlinTarget
+      languageVersion = kotlinTarget
+      jvmTarget = JvmTarget.fromTarget(javaTarget)
+      freeCompilerArgs.add("-Xjdk-release=$javaTarget")
+      progressiveMode = true
+    }
   }
 
 //  macosArm64 {
@@ -27,6 +43,12 @@ kotlin {
 //        entryPoint = "com.xemantic.claudine.main"
 //      }
 //    }
+//  }
+
+
+//  js {
+//    browser()
+//    nodejs()
 //  }
 
   sourceSets {
@@ -96,6 +118,12 @@ kotlin {
       }
     }
 
+    jsMain {
+      dependsOn(jvmAndPosixMain)
+      dependencies {
+//        implementation("org.jetbrains.kotlinx:kotlinx-nodejs:0.0.7")
+      }
+    }
   }
 
 }
