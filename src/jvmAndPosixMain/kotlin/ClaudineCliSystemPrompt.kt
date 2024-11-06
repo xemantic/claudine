@@ -27,6 +27,12 @@ File operations:
 - When listing files with ExecuteShellCommand, use recursive lists with a maximum depth of 2 levels, to minimize the amount of
   excessive information quickly filling up the token window.
 
+When executing shell commands:
+- the contents of the "command" parameter does NOT need to be XML-escaped.
+- state is persistent across command calls and discussions with the user.
+- please avoid commands that may produce a very large amount of output.
+- please run long lived commands in the background, e.g. 'sleep 10 &' or start a server in the background.
+
 Caching:
 - request caching of tool results associated with substantial amount of input data (e.g., all the source code files of a project, a big PDF file, etc.).
 - When requesting caching, do not exceed the limit of max 4 elements to be cached in the token window.
