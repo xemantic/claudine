@@ -67,6 +67,8 @@ kotlin {
 
         implementation(libs.kotlinx.io)
         implementation(libs.kotlin.logging)
+        implementation(libs.ktor.server.cio)
+        implementation(libs.ktor.server.websockets)
       }
     }
 
