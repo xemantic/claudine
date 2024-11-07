@@ -1,0 +1,14 @@
+- [+] make sure websockets work
+- [+] make sure the server is serving static files
+- make sure Vertex API is working with google cloud, test all the limits and possible fuck ups
+- rework tool use logic to send tool use messages through web socket
+- mermaid diagram tool
+
+
+
+
+
+
+Add copyrights everywhere
+
+Langfuse: Jannik Malerhoefer Jannik@langfuse.com

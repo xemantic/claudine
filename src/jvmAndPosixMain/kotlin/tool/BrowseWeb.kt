@@ -3,14 +3,6 @@ package com.xemantic.claudine.tool
 import com.xemantic.anthropic.schema.Description
 import com.xemantic.anthropic.tool.AnthropicTool
 import com.xemantic.anthropic.tool.ToolInput
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-
-
-private val chromeBridge by lazy {
-  ChromeBridge()
-}
 
 @AnthropicTool("BrowseWeb")
 @Description("Browses the web")

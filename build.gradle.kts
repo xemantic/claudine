@@ -132,6 +132,7 @@ kotlin {
 
 tasks.withType<JavaExec>().configureEach {
   standardInput = System.`in`
+  jvmArgs = listOf("-Djava.net.preferIPv6Addresses=system")
 }
 
 tasks.withType<Jar> {
