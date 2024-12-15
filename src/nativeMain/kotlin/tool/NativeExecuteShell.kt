@@ -1,7 +1,7 @@
 package com.xemantic.claudine.tool
 
-import com.xemantic.anthropic.message.Text
-import com.xemantic.anthropic.message.ToolResult
+import com.xemantic.ai.anthropic.message.Text
+import com.xemantic.ai.anthropic.message.ToolResult
 import platform.posix.execlp
 
 actual fun executeShell(

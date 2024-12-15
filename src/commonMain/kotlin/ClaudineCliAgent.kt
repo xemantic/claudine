@@ -1,11 +1,12 @@
 package com.xemantic.claudine
 
-import com.xemantic.anthropic.Anthropic
-import com.xemantic.anthropic.content.Text
-import com.xemantic.anthropic.content.ToolResult
-import com.xemantic.anthropic.content.ToolUse
-import com.xemantic.anthropic.message.Message
-import com.xemantic.anthropic.message.plusAssign
+import com.xemantic.ai.anthropic.Anthropic
+import com.xemantic.ai.anthropic.content.Text
+import com.xemantic.ai.anthropic.content.ToolResult
+import com.xemantic.ai.anthropic.content.ToolUse
+import com.xemantic.ai.anthropic.message.Message
+import com.xemantic.ai.anthropic.message.System
+import com.xemantic.ai.anthropic.message.plusAssign
 
 suspend fun claudine(
   anthropic: Anthropic,
@@ -29,6 +30,12 @@ suspend fun claudine(
       print("[Claude] ...Reasoning...")
       val response = anthropic.messages.create {
         system(systemPrompt)
+        system = listOf(
+          systemPrompt,
+          currentTimeSystemPrompt()
+        ).map {
+          System(text = it)
+        }
         messages = conversation
         maxTokens = 4096 * 2 // for the latest model
         // TODO it should be taken from the default which is not passed in Anthropic now, we need unit tests for this
@@ -55,7 +62,10 @@ suspend fun claudine(
               when (val confirmLine = readln()) {
                 "yes" -> it.use()
                 "exit" -> return
-                else -> ToolResult(toolUseId = it.id) {
+                else -> ToolResult {
+                  toolUseId = it.id
+                  isError = true
+                  // TODO this should be added to the resul, and it is not
                   "Human refused to run this command on their machine with the following reason: $confirmLine"
                 }
               }
@@ -79,3 +89,4 @@ suspend fun claudine(
     } while (continueRequest)
   }
 }
+

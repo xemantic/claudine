@@ -1,6 +1,6 @@
 package com.xemantic.claudine
 
-import com.xemantic.anthropic.Anthropic
+import com.xemantic.ai.anthropic.Anthropic
 import com.xemantic.claudine.tool.CreateFile
 import com.xemantic.claudine.tool.ExecuteShellCommand
 import com.xemantic.claudine.tool.ReadBinaryFiles

@@ -1,10 +1,10 @@
 package com.xemantic.claudine
 
-import com.xemantic.anthropic.Anthropic
-import com.xemantic.anthropic.content.Text
-import com.xemantic.anthropic.content.ToolResult
-import com.xemantic.anthropic.content.ToolUse
-import com.xemantic.anthropic.message.Message
+import com.xemantic.ai.anthropic.Anthropic
+import com.xemantic.ai.anthropic.content.Text
+import com.xemantic.ai.anthropic.content.ToolResult
+import com.xemantic.ai.anthropic.content.ToolUse
+import com.xemantic.ai.anthropic.message.Message
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 

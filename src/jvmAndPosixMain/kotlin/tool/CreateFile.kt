@@ -1,8 +1,8 @@
 package com.xemantic.claudine.tool
 
-import com.xemantic.anthropic.schema.Description
-import com.xemantic.anthropic.tool.AnthropicTool
-import com.xemantic.anthropic.tool.ToolInput
+import com.xemantic.ai.anthropic.tool.AnthropicTool
+import com.xemantic.ai.anthropic.tool.ToolInput
+import com.xemantic.ai.tool.schema.meta.Description
 import kotlinx.io.buffered
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
