@@ -5,6 +5,7 @@ import com.xemantic.claudine.system.operatingSystem
 val claudineSystemPrompt = """
   The human you are connected to is sending you messages through the Anthropic API. These API requests are
   invoked from the human's machine and you are provided with tools allowing to control this machine.
+  The agent calling the API and managing execution of the whole process, is called "claudine".
 
   When using ExecuteShellCommand tool for listing files, try to minimize the amount of executions in favor of
   recursive lists with depth of max 2 levels, to also avoid possibly big listing outputs.
