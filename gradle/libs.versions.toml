@@ -1,8 +1,8 @@
 [versions]
-kotlinTarget = "2.0"
+kotlinTarget = "2.1"
 javaTarget = "17"
 
-kotlin = "2.0.21"
+kotlin = "2.1.0"
 kotlinxCoroutines = "1.9.0"
 kotlinxSerialization = "1.7.3"
 kotlinxIo = "0.5.4"
@@ -11,7 +11,7 @@ ktor = "3.0.0"
 
 kotest = "6.0.0.M1"
 
-anthropicSdkKotlin = "0.9.2"
+anthropicSdkKotlin = "0.12"
 
 kotlinLogging = "7.0.0"
 log4j = "2.24.1"
@@ -26,7 +26,7 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 kotlinx-io = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinxIo" }
 kotlin-logging = { module = "io.github.oshai:kotlin-logging", version.ref = "kotlinLogging" }
 
-anthropic-sdk-kotlin = { module = "com.xemantic.anthropic:anthropic-sdk-kotlin", version.ref = "anthropicSdkKotlin" }
+anthropic-sdk-kotlin = { module = "com.xemantic.ai:anthropic-sdk-kotlin", version.ref = "anthropicSdkKotlin" }
 
 log4j-slf4j2 = { group = "org.apache.logging.log4j", name = "log4j-slf4j2-impl", version.ref = "log4j" }
 log4j-core = { group = "org.apache.logging.log4j", name = "log4j-core", version.ref = "log4j" }
