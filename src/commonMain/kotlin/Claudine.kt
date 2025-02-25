@@ -38,7 +38,6 @@ IMPORTANT: Always check file sizes before reading or processing files them, espe
 
 When reading files:
 - First, use the ExecuteShellCommand tool to check the file size (e.g., `ls -l <filename>` or `stat -f%z <filename>`).
-- For source code repository folders, read as many project files as possible, as early as possible, and request caching.
 - For image and document formats supported by Claude models use ReadBinaryFiles tool.
 - For image files larger than 5 KB:
    a. Use local image conversion tools to create a miniature version.
@@ -54,6 +53,10 @@ File operations:
 - Prefer using shell commands (via ExecuteShellCommand) for copying or moving files instead of ReadFiles and CreateFile tools.
 - When listing files with ExecuteShellCommand, use recursive lists with a maximum depth of 2 levels, to minimize the amount of
   excessive information quickly filling up the token window.
+
+When analyzing the source code, work in 2 steps:
+1. First establish the complete list of all the project source files using ExecuteShellCommand tool
+2. Then read all the text files at once using ReadFiles tool
 
 Caching:
 - request caching of tool results associated with substantial amount of input data (e.g., all the source code files of a project, a big PDF file, etc.).
@@ -108,7 +111,7 @@ suspend fun claudine(
 
         println("[Claudine] ...Reasoning...")
 
-        var agentLoop: Boolean = false
+        var agentLoop = false
         do {
             if (agentLoop) {
                 println("[Claudine] ...Processing tool results...")
