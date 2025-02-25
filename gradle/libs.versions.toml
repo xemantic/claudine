@@ -2,27 +2,28 @@
 kotlinTarget = "2.1"
 javaTarget = "17"
 
-kotlin = "2.1.0"
-kotlinxCoroutines = "1.9.0"
-kotlinxSerialization = "1.7.3"
-kotlinxIo = "0.5.4"
+kotlin = "2.1.10"
+kotlinxCoroutines = "1.10.1"
+kotlinxSerialization = "1.8.0"
+kotlinxIo = "0.6.0"
 
-ktor = "3.0.0"
+ktor = "3.1.1"
 
-kotest = "6.0.0.M1"
+kotest = "6.0.0.M2"
 
-anthropicSdkKotlin = "0.12"
+anthropicSdkKotlin = "0.17.0"
 
-kotlinLogging = "7.0.0"
+kotlinLogging = "7.0.4"
 log4j = "2.24.1"
-jackson = "2.18.0"
+jackson = "2.18.2"
 
-versionsPlugin = "0.51.0"
+versionsPlugin = "0.52.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerialization" }
 kotlinx-io = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinxIo" }
 kotlin-logging = { module = "io.github.oshai:kotlin-logging", version.ref = "kotlinLogging" }
 

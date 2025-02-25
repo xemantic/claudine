@@ -22,12 +22,17 @@ kotlin {
 
   applyDefaultHierarchyTemplate()
 
-  jvm {
-    // withJava()
 
-//    mainRun {
-//      mainClass = "com.xemantic.claudine.ClaudineKt"
-//    }
+  compilerOptions {
+    apiVersion = kotlinTarget
+    languageVersion = kotlinTarget
+    freeCompilerArgs.add("-Xmulti-dollar-interpolation")
+    extraWarnings.set(true)
+    progressiveMode = true
+  }
+
+  jvm {
+    // set up according to https://jakewharton.com/gradle-toolchains-are-rarely-a-good-idea/
     compilerOptions {
       apiVersion = kotlinTarget
       languageVersion = kotlinTarget
@@ -37,13 +42,13 @@ kotlin {
     }
   }
 
-//  macosArm64 {
-//    binaries {
-//      executable {
-//        entryPoint = "com.xemantic.claudine.main"
-//      }
-//    }
-//  }
+  macosArm64 {
+    binaries {
+      executable {
+        entryPoint = "com.xemantic.ai.claudine.main"
+      }
+    }
+  }
 
 
 //  js {
@@ -56,6 +61,7 @@ kotlin {
     commonMain {
       dependencies {
         implementation(libs.kotlinx.coroutines.core)
+        implementation(libs.kotlinx.serialization.core)
         implementation(libs.anthropic.sdk.kotlin)
       }
     }
@@ -118,12 +124,12 @@ kotlin {
       }
     }
 
-    jsMain {
-      dependsOn(jvmAndPosixMain)
-      dependencies {
-//        implementation("org.jetbrains.kotlinx:kotlinx-nodejs:0.0.7")
-      }
-    }
+//    jsMain {
+//      dependsOn(jvmAndPosixMain)
+//      dependencies {
+////        implementation("org.jetbrains.kotlinx:kotlinx-nodejs:0.0.7")
+//      }
+//    }
   }
 
 }
@@ -138,11 +144,18 @@ tasks.withType<Jar> {
     val main by kotlin.jvm().compilations.getting
     manifest {
       attributes(
-        "Main-Class" to "com.xemantic.claudine.ClaudineKt",
+        "Main-Class" to "com.xemantic.claudine.ai.ClaudineMainKt",
       )
     }
     from({
       main.runtimeDependencyFiles.files.filter { it.name.endsWith("jar") }.map { zipTree(it) }
     })
+  }
+}
+
+// https://youtrack.jetbrains.com/issue/KT-64508/IndexOutOfBoundsException-in-Konan-StaticInitializersOptimization
+kotlin.targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget> {
+  binaries.all {
+    freeCompilerArgs += "-Xdisable-phases=RemoveRedundantCallsToStaticInitializersPhase"
   }
 }
