@@ -80,7 +80,7 @@ val ReadFiles.info
 |    
 ${paths.pathInfo()}
 |
-| purpose : $purpose
+| purpose: $purpose
 |
 """.trimIndent()
 
@@ -89,7 +89,7 @@ val ReadBinaryFiles.info
 |
 ${paths.pathInfo()}
 |
-| purpose : $purpose
+| purpose: $purpose
 """.trimIndent()
 
 fun getTooUseInfo(toolInput: Any) = when (toolInput) {
