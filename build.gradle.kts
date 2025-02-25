@@ -144,7 +144,7 @@ tasks.withType<Jar> {
         val main by kotlin.jvm().compilations.getting
         manifest {
             attributes(
-                "Main-Class" to "com.xemantic.claudine.ai.ClaudineMainKt",
+                "Main-Class" to "com.xemantic.ai.claudine.ClaudineMainKt",
             )
         }
         from({
