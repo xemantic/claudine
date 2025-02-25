@@ -42,13 +42,13 @@ kotlin {
         }
     }
 
-    macosArm64 {
-        binaries {
-            executable {
-                entryPoint = "com.xemantic.ai.claudine.main"
-            }
-        }
-    }
+//    macosArm64 {
+//        binaries {
+//            executable {
+//                entryPoint = "com.xemantic.ai.claudine.main"
+//            }
+//        }
+//    }
 
 
 //  js {
@@ -112,17 +112,17 @@ kotlin {
             dependsOn(jvmAndPosixTest)
         }
 
-        linuxMain {
-            dependencies {
-                implementation(libs.ktor.client.curl)
-            }
-        }
-
-        macosMain {
-            dependencies {
-                implementation(libs.ktor.client.darwin)
-            }
-        }
+//        linuxMain {
+//            dependencies {
+//                implementation(libs.ktor.client.curl)
+//            }
+//        }
+//
+//        macosMain {
+//            dependencies {
+//                implementation(libs.ktor.client.darwin)
+//            }
+//        }
 
 //    jsMain {
 //      dependsOn(jvmAndPosixMain)
