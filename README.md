@@ -1,16 +1,13 @@
 # claudine
 
-Claudine, the only AI assistant you will ever need. An AI agent, which is using your machine
-as a window to external world, therefore perceiving your reality, values and needs, and reasoning
-how to fulfill them.
+Claudine reasons and acts autonomously while being Unix-omnipotent, therefore she might be the only AI assistant you will ever need. An AI agent, which is using your machine as a window to external world, therefore perceiving your reality, values and needs, and reasoning how to fulfill them.
 
 > [!IMPORTANT]
 > 🤖 **Build Your Own AI Agents** - Join our one-day Agentic AI & Creative Coding Workshop in Berlin (Spring 2025), led by AI hack Berlin hackathon winner Kazik Pogoda. Learn to create autonomous AI agents using Anthropic API, engineer advanced prompts, and give your agents tools to control machines. Workshops run Tuesdays (Feb 25 - Mar 25) at Prachtsaal Berlin, limited to 15 participants. 150 EUR contribution supports open source development (solidarity access available, no questions asked). All examples use Kotlin (crash course included) but focus on meta-principles of AI agent development. Details: <https://xemantic.com/ai/workshops>
 
 ## How to use Claudine?
 
-:warning: I am working on packaging Claudine as a small native executable for each platform,
-until this happens, it has to run on the JVM.
+:warning: I am working on packaging Claudine as a small native executable for each platform, until this happens, it has to run on the JVM.
 
 ```shell
 ./gradlew build
@@ -45,13 +42,15 @@ Let's substitute these variables with something concrete:
 Claudine can "reason", as much as Claude LLM can reason, so you can have any typical interaction
 like with a conversational bot. In addition, it can also use these tools:
 
-* [ReadFiles](src/jvmAndPosixMain/kotlin/tool/ReadFiles.kt)
-* [ReadBinaryFiles](src/jvmAndPosixMain/kotlin/tool/ReadBinaryFiles.kt)
-* [CreateFile](src/jvmAndPosixMain/kotlin/tool/CreateFile.kt)
-* [ExecuteShellCommand](src/jvmAndPosixMain/kotlin/tool/ExecuteShellCommand.kt)
+* ReadFiles
+* ReadBinaryFiles
+* CreateFile
+* ExecuteShellCommand
+
+_see [Tools.kt](src/commonMain/kotlin/Tools.kt) file_
 
 Just these tools, and the
-[system prompt](src/jvmAndPosixMain/kotlin/ClaudineCliSystemPrompt.kt)
+[system prompt](src/commonMain/kotlin/Claudine.kt)
 , allow Claudine to:
 
 * Completely administer your computer and answer any question related to it's state.
