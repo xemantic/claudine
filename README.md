@@ -21,7 +21,7 @@ from [Anthropic console](https://console.anthropic.com/) and then provided with:
 export ANTHROPIC_API_KEY=your_key_goes_here
 ```
 
-The rest is self-explanatory - just talk with Claudine as a proxy to Claude.
+The rest is self-explanatory - just talk with Claudine as a proxy to [Claude AI](https://claude.ai/).
 
 ## Who is Claudine?
 
