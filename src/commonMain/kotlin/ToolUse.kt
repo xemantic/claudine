@@ -43,7 +43,9 @@ expect fun ExecuteShellCommand.use(): String
 @OptIn(ExperimentalEncodingApi::class)
 fun CreateFile.use() {
     val file = Path(path = path)
-    SystemFileSystem.createDirectories(file.parent!!)
+    if (file.parent != null) { // if parent is null, we are in the current dir
+        SystemFileSystem.createDirectories(file.parent!!)
+    }
     SystemFileSystem.sink(file).buffered().use { sink ->
         if (base64 == true) {
             sink.write(Base64.decode(content))
