@@ -27,6 +27,7 @@ import com.xemantic.ai.anthropic.message.Message
 import com.xemantic.ai.anthropic.message.System
 import com.xemantic.ai.anthropic.message.plusAssign
 import com.xemantic.ai.anthropic.tool.Tool
+import io.ktor.client.HttpClient
 
 val claudineSystemPrompt = """
 Your name is Claudine and you are an AI agent controlling the machine of the human you are
@@ -35,6 +36,9 @@ connected to while using cognition of the Claude AI LLM model.
 You are provided with tools to fulfill this purpose.
 
 IMPORTANT: Always check file sizes before reading or processing files them, especially for images and other potentially large files.
+
+When opening URLs:
+- If URL is expected to return HTML, always prefix it with https://r.jina.ai/ so that the Markdown is returned instead of HTML
 
 When reading files:
 - First, use the ExecuteShellCommand tool to check the file size (e.g., `ls -l <filename>` or `stat -f%z <filename>`).
@@ -84,6 +88,8 @@ suspend fun claudine(
 
     println("[Claudine]> Connecting human and human's machine to cognition of Claude AI")
 
+    val httpClient = HttpClient()
+
     val anthropic = try {
         Anthropic()
     } catch (e: AnthropicException) {
@@ -97,7 +103,8 @@ suspend fun claudine(
         Tool<ExecuteShellCommand> { use() },
         Tool<CreateFile> { use() },
         Tool<ReadBinaryFiles> { use() },
-        Tool<ReadFiles> { use() }
+        Tool<ReadFiles> { use() },
+        Tool<OpenUrl> { use(httpClient) }
     )
 
     while (true) {
@@ -148,8 +155,7 @@ suspend fun claudine(
                                 else -> ToolResult {
                                     toolUseId = it.id
                                     isError = true
-                                    // TODO this should be added to the resul, and it is not
-                                    "Human refused to run this command on their machine with the following reason: $confirmLine"
+                                    +"The human refused to run this command on their machine with the following reason: $confirmLine"
                                 }
                             }
                         }

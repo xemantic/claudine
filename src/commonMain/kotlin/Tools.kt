@@ -92,3 +92,11 @@ data class ReadFiles(
     @Description("The purpose of reading these files")
     val purpose: String
 )
+
+@SerialName("OpenUrl")
+@Description("Reads contents of an URL")
+data class OpenUrl(
+    val url: String,
+    @Description("The purpose of opening this URL")
+    val purpose: String
+)

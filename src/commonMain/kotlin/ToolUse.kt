@@ -19,10 +19,21 @@
 package com.xemantic.ai.claudine
 
 import com.xemantic.ai.anthropic.content.Content
+import com.xemantic.ai.anthropic.content.Document
+import com.xemantic.ai.anthropic.content.Image
+import com.xemantic.ai.anthropic.content.Text
+import com.xemantic.ai.file.magic.detectMediaType
 import com.xemantic.ai.file.magic.readText
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import kotlinx.io.buffered
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
+import kotlinx.io.readByteArray
 import kotlinx.io.writeString
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -51,7 +62,16 @@ val CreateFile.info
 |
 """.trimIndent()
 
-expect fun ReadBinaryFiles.use(): List<Content>
+@OptIn(ExperimentalEncodingApi::class)
+fun ReadBinaryFiles.use(): List<Content> = paths.map { path ->
+    Path(path).toBytes().toContent()
+}
+
+fun Path.toBytes(): ByteArray = SystemFileSystem.source(
+    this
+).buffered().use {
+    it.readByteArray()
+}
 
 val ExecuteShellCommand.info
     get() = $$"""
@@ -92,11 +112,35 @@ ${paths.pathInfo()}
 | purpose: $purpose
 """.trimIndent()
 
+suspend fun OpenUrl.use(client: HttpClient): Content {
+    val response = client.get(url)
+    val contentType = response.contentType()
+    return if (contentType != null) {
+        if (contentType.match(ContentType.Text.Html) || contentType.match(ContentType.Text.Plain)) {
+            Text(response.bodyAsText())
+        } else {
+            response.body<ByteArray>().toContent()
+        }
+    } else {
+        Text(response.bodyAsText())
+    }
+}
+
+val OpenUrl.info
+    get() = """
+|
+| url: $url
+|
+| purpose: $purpose
+""".trimIndent()
+
+
 fun getTooUseInfo(toolInput: Any) = when (toolInput) {
     is ExecuteShellCommand -> toolInput.info
     is CreateFile -> toolInput.info
     is ReadFiles -> toolInput.info
     is ReadBinaryFiles -> toolInput.info
+    is OpenUrl -> toolInput.info
     else -> IllegalStateException("Unknown tool input: $toolInput")
 }
 
@@ -104,3 +148,10 @@ private fun List<String>.pathInfo() = joinToString(
     separator = "\n",
     transform = { "| - $it" }
 )
+
+@OptIn(ExperimentalEncodingApi::class)
+private fun ByteArray.toContent() = when (detectMediaType()) {
+    in Image.SUPPORTED_MEDIA_TYPES -> Image(this)
+    in Document.SUPPORTED_MEDIA_TYPES -> Document(this)
+    else -> Text(text = Base64.encode(this)) // non-recognized binary format
+}

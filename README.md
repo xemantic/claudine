@@ -25,42 +25,52 @@ The rest is self-explanatory - just talk with Claudine as a proxy to Claude.
 
 ## Who is Claudine?
 
-Claudine is a relatively simple AI agent. It's part of my research on agentic AI and it's powers
-and limitations. But don't be misled by the simplicity - agentic
-power of an AI system is a function of these 3 factors which amplify each other:
+Claudine is a relatively simple AI agent. It's part of my research on agentic AI and it's powers and limitations. But don't be misled by the simplicity - the agentic power of an AI system is a function of these 3 factors which amplify each other:
 
-* A language model with emergent reasoning capabilities.
-* Well documented (therefore internalized by the model) information exchange standard.
-* Vast amount of data to operate on.
+1. A language model with emergent reasoning capabilities.
+2. Well documented (therefore internalized by the model) information exchange standard.
+3. Vast amount of data to operate on.
 
 Let's substitute these variables with something concrete:
 
-* Anthropic API provides the Claude model.
-* Standard command line tools of your machine give endless possibilities, especially on Unix platforms.
-* Your hard drive provides a vast supply of zeros and ones to the model.
+1. Anthropic API provides the Claude model.
+2. The most established information exchange standards are:
+    - Unix (standard command line tools of your machine give endless possibilities)
+    - HTTP
+3. The data comes from:
+    - Your hard drive which provides a vast supply of zeros and ones to the model.
+    - The whole internet.
 
-Claudine can "reason", as much as Claude LLM can reason, so you can have any typical interaction
-like with a conversational bot. In addition, it can also use these tools:
+Claudine can "reason", as much as Claude LLM can reason, so you can have any typical interaction like with a conversational bot. In addition, she can also use these tools on your machine:
 
 * ReadFiles
 * ReadBinaryFiles
 * CreateFile
 * ExecuteShellCommand
+* OpenUrl
 
 _see [Tools.kt](src/commonMain/kotlin/Tools.kt) file_
 
-Just these tools, and the
-[system prompt](src/commonMain/kotlin/Claudine.kt)
-, allow Claudine to:
+Just these tools, and the [system prompt](src/commonMain/kotlin/Claudine.kt), allow Claudine to:
 
 * Completely administer your computer and answer any question related to it's state.
 * Analyze your files according to your instructions.
 * Fully analyze a source code of your project and implement a feature.
 * Code new tools needed to achieve your objective, and execute them until the goal is fulfilled.
+* Obtain any contextual information from the internet.
 
 And many, many more, the sky is the limit ...
 
-Adding new specialized tools on your own is also quite simple. 
+Adding new specialized tools on your own is also quite straightforward.
+
+## How can I use this knowledge?
+
+Claudine is a blueprint of an autonomous agent, therefore you can use it as an inspiration for implementing even more complex systems. Just remember about these 3 factors I mention earlier, and substitute them with specificity of your organization. For example the standard could be SQL, and the source of data would be your databases. In such scenario you need only 2 toos:
+
+1. Database schema reader
+2. SQL executor
+
+And it should allow the agent to perform any complex data analysis according to instructions written in natural language.
 
 ## Technicalities
 
