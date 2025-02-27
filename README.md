@@ -121,6 +121,29 @@ Realizing certain task might result in forking to a new session, to completely
 fulfill a sub-task, like writing a custom tool, and then passing control
 back to the parent session.
 
+## License
+
+Claudine is free software released under the [GNU General Public License v3.0 (GPL-3.0)](https://www.gnu.org/licenses/gpl-3.0.en.html).
+
+> [!NOTE]
+> If you need to obtain in individual license on other conditions, please contact us.
+
+### What this means:
+
+- You are free to use, modify, and distribute this software.
+- If you distribute modified versions, you must:
+   - Make your source code available
+   - License your modifications under GPL-3.0
+   - Document changes you've made
+   - Preserve copyright notices
+
+### Using Claudine in your project:
+
+When incorporating Claudine into your projects, you must comply with GPL-3.0 requirements. This generally means that any software that includes Claudine must also be released under GPL-3.0 and make its source code available.
+
+> [!NOTE]
+> The core components Claudine is built on (See [xemantic-ai](https://github.com/xemantic-ai)) are released under more permissive Apache 2.0 license.
+
 ## Inspirations
 
 Claudine is not a common name, however I have a pleasure of working with
