@@ -25,7 +25,7 @@ The rest is self-explanatory - just talk with Claudine as a proxy to Claude.
 
 ## Who is Claudine?
 
-Claudine is a relatively simple AI agent. It's part of my research on agentic AI and it's powers and limitations. But don't be misled by the simplicity - the agentic power of an AI system is a function of these 3 factors which amplify each other:
+Claudine is a relatively simple AI agent. It's part of [Xemantic's research on agentic AI](https://xemantic.com/ai/) and it's powers and limitations. But don't be misled by the simplicity - the agentic power of an AI system is a function of these 3 factors which amplify each other:
 
 1. A language model with emergent reasoning capabilities.
 2. Well documented (therefore internalized by the model) information exchange standard.
