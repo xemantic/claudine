@@ -41,6 +41,43 @@ Let's substitute these variables with something concrete:
     - Your hard drive which provides a vast supply of zeros and ones to the model.
     - The whole internet.
 
+```mermaid
+graph TD
+    A[Agentic AI Power]
+    
+    B[Language Model with<br>Emergent Reasoning]
+    C[Well-documented<br>Information Exchange Standard]
+    D[Vast Amount of<br>Data to Operate On]
+    
+    A --> B
+    A --> C
+    A --> D
+    
+    B --> B1[Claude Model<br>via Anthropic API]
+    
+    C --> C1[Unix<br>Command Line Tools]
+    C --> C2[HTTP]
+    
+    D --> D1[Local Hard Drive<br>Data]
+    D --> D2[Internet Data]
+    
+    subgraph "Amplification Effect"
+        B <--> C
+        C <--> D
+        D <--> B
+    end
+    
+    style A fill:#f9f,stroke:#000,stroke-width:2px,color:#000
+    style B fill:#bbf,stroke:#000,stroke-width:1px,color:#000
+    style C fill:#bbf,stroke:#000,stroke-width:1px,color:#000
+    style D fill:#bbf,stroke:#000,stroke-width:1px,color:#000
+    style B1 fill:#dfd,stroke:#000,stroke-width:1px,color:#000
+    style C1 fill:#dfd,stroke:#000,stroke-width:1px,color:#000
+    style C2 fill:#dfd,stroke:#000,stroke-width:1px,color:#000
+    style D1 fill:#dfd,stroke:#000,stroke-width:1px,color:#000
+    style D2 fill:#dfd,stroke:#000,stroke-width:1px,color:#000
+```
+
 Claudine can "reason", as much as Claude LLM can reason, so you can have any typical interaction like with a conversational bot. In addition, she can also use these tools on your machine:
 
 * ReadFiles
@@ -65,18 +102,16 @@ Adding new specialized tools on your own is also quite straightforward.
 
 ## How can I use this knowledge?
 
-Claudine is a blueprint of an autonomous agent, therefore you can use it as an inspiration for implementing even more complex systems. Just remember about these 3 factors I mention earlier, and substitute them with specificity of your organization. For example the standard could be SQL, and the source of data would be your databases. In such scenario you need only 2 toos:
+Claudine is a blueprint of an autonomous agent, therefore you can use it as an inspiration for implementing even more complex systems. Just remember about these 3 factors I mention earlier, and substitute them with specificity of your organization. For example the "standard" could be the SQL, and the "source of data" would be the database of your organization. In such scenario you need only 2 toos:
 
 1. Database schema reader
 2. SQL executor
 
-And it should allow the agent to perform any complex data analysis according to instructions written in natural language.
+And it should allow the agent to perform any complex data analysis according to instructions written in natural language. The implementation of these tools is trivial, and you can ask Claudine to do it for you.
 
 ## Technicalities
 
-Claudine is based on the
-[anthropic-kotlin-sdk](https://github.com/xemantic/anthropic-sdk-kotlin).
-This library emerged to realize projects like Claudine.
+Claudine is based on the [anthropic-kotlin-sdk](https://github.com/xemantic/anthropic-sdk-kotlin). This library emerged to realize projects like Claudine, and make it as simple as possible.
 
 ## The future
 
