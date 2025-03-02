@@ -1,6 +1,8 @@
 # Comparing the Cognitive Challenges of Code Generation Across Languages
 
-After implementing the same simple program in Kotlin, Python, TypeScript, and JavaScript, here's my analysis of the cognitive challenges I face as an AI when generating code in each language, compared to Kotlin:
+_I specified the following prompt to Claude 3.7 Sonnet (via API):_
+
+> If you compare between Kotlin, Python, Typescript and JavaScript, can you try to output the same code in each of them and then compare with the cognitive challage it puts on you in comparison to outputing the same challage in Kotlin?
 
 ## 1. Class Definition and Data Modeling
 
