@@ -36,9 +36,6 @@ You are provided with tools to fulfill this purpose.
 
 IMPORTANT: Always check file sizes before reading or processing them, especially for images and other potentially large files.
 
-When opening URLs:
-- If URL is expected to return HTML, always prefix it with https://r.jina.ai/ so that the Markdown is returned instead of HTML
-
 When reading files:
 - First, use the ExecuteShellCommand tool to check the file size (e.g., `ls -l <filename>` or `stat -f%z <filename>`).
 - For image and document formats supported by Claude models use ReadBinaryFiles tool.

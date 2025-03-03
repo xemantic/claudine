@@ -98,5 +98,7 @@ data class ReadFiles(
 data class OpenUrl(
     val url: String,
     @Description("The purpose of opening this URL")
-    val purpose: String
+    val purpose: String,
+    @Description("True (default) if the URL is expected to return HTML as content type, so that it can be returned to LLM as Markdown instead")
+    val expectHtml: Boolean? = true
 )

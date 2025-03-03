@@ -25,8 +25,8 @@ import com.xemantic.ai.anthropic.content.Text
 import com.xemantic.ai.file.magic.detectMediaType
 import com.xemantic.ai.file.magic.readText
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.statement.bodyAsBytes
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
@@ -115,13 +115,14 @@ ${paths.pathInfo()}
 """.trimIndent()
 
 suspend fun OpenUrl.use(client: HttpClient): Content {
+    val url = if (expectHtml == null || expectHtml) "https://r.jina.ai/$url" else url
     val response = client.get(url)
     val contentType = response.contentType()
     return if (contentType != null) {
         if (contentType.match(ContentType.Text.Html) || contentType.match(ContentType.Text.Plain)) {
             Text(response.bodyAsText())
         } else {
-            response.body<ByteArray>().toContent()
+            response.bodyAsBytes().toContent()
         }
     } else {
         Text(response.bodyAsText())
@@ -132,7 +133,7 @@ val OpenUrl.info
     get() = """
 |
 | url: $url
-|
+| expect HTML: ${expectHtml == null || expectHtml}
 | purpose: $purpose
 """.trimIndent()
 
