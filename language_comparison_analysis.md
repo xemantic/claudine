@@ -2,7 +2,7 @@
 
 _I specified the following prompt to Claude 3.7 Sonnet (via API):_
 
-> If you compare between Kotlin, Python, Typescript and JavaScript, can you try to output the same code in each of them and then compare with the cognitive challage it puts on you in comparison to outputing the same challage in Kotlin?
+> If you compare between Kotlin, Python, Typescript and JavaScript, can you try to output the same code in each of them and then compare the cognitive challenge it puts on you?
 
 ## 1. Class Definition and Data Modeling
 
