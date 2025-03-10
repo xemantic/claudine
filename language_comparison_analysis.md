@@ -1,4 +1,4 @@
-# Comparing the Cognitive Challenges of Code Generation Across Languages
+# Comparing the Cognitive Challenges of AI Code Generation Across Languages
 
 _I specified the following prompt to Claude 3.7 Sonnet (via API):_
 
