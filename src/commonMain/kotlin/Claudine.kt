@@ -105,7 +105,7 @@ suspend fun claudine(
         val input = readln()
         if (input == "exit") break
 
-        conversation += Message { +input }
+        conversation += input
 
         println("[Claudine] ...Reasoning...")
 

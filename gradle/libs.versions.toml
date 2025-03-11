@@ -5,17 +5,17 @@ javaTarget = "17"
 kotlin = "2.1.10"
 kotlinxCoroutines = "1.10.1"
 kotlinxSerialization = "1.8.0"
-kotlinxIo = "0.6.0"
+kotlinxIo = "0.7.0"
 
 ktor = "3.1.1"
 
 kotest = "6.0.0.M2"
 
-anthropicSdkKotlin = "0.17.1"
+anthropicSdkKotlin = "0.18.1"
 
 kotlinLogging = "7.0.4"
 log4j = "2.24.1"
-jackson = "2.18.2"
+jackson = "2.18.3"
 
 versionsPlugin = "0.52.0"
 
