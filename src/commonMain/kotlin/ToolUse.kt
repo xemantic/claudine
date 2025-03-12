@@ -21,6 +21,7 @@ package com.xemantic.ai.claudine
 import com.xemantic.ai.anthropic.content.Content
 import com.xemantic.ai.anthropic.content.Document
 import com.xemantic.ai.anthropic.content.Image
+import com.xemantic.ai.anthropic.content.Source
 import com.xemantic.ai.anthropic.content.Text
 import com.xemantic.ai.file.magic.detectMediaType
 import com.xemantic.ai.file.magic.readText
@@ -120,15 +121,27 @@ suspend fun OpenUrl.use(client: HttpClient): Content {
     val head = client.head(url)
     val contentType = head.contentType()
     return if (contentType != null) {
-        val effectiveUrl = if (contentType.match(ContentType.Text.Html)) {
-            "https://r.jina.ai/$url"
-        } else {
-            url
-        }
-        if (contentType.match(ContentType.Text.Html) || contentType.match(ContentType.Text.Plain)) {
-            Text(client.get(effectiveUrl).bodyAsText())
-        } else {
-            client.get(effectiveUrl).bodyAsBytes().toContent()
+        when {
+            contentType.match(ContentType.Text.Html) ->
+                Text(client.get("https://r.jina.ai/$url").bodyAsText())
+            contentType.match(
+                ContentType.Text.Any,
+                ContentType.Image.SVG,
+                ContentType.Application.Json,
+                ContentType.Application.Xml
+            ) -> Text(
+                client.get(url).bodyAsText()
+            )
+            contentType.match(
+                ContentType.Image.PNG,
+                ContentType.Image.JPEG,
+                ContentType.Image.GIF,
+                ContentType.Image.WEBP
+            ) -> Image {
+                // TODO make it shorter when better support in the library is introduced
+                source = Source.Url { url = this@use.url }
+            }
+            else -> client.get(url).bodyAsBytes().toContent()
         }
     } else {
         client.get(url).bodyAsBytes().toContent()
@@ -162,4 +175,12 @@ private fun ByteArray.toContent() = when (detectMediaType()) {
     in Image.SUPPORTED_MEDIA_TYPES -> Image(this)
     in Document.SUPPORTED_MEDIA_TYPES -> Document(this)
     else -> Text(text = Base64.encode(this)) // non-recognized binary format
+}
+
+private val ContentType.Image.WEBP get() = ContentType("image", "webp")
+
+private fun ContentType.match(
+    vararg contentTypes: ContentType
+) = contentTypes.any {
+    this.match(it)
 }
