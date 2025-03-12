@@ -24,7 +24,9 @@ import com.xemantic.ai.anthropic.content.ToolResult
 import com.xemantic.ai.anthropic.content.ToolUse
 import com.xemantic.ai.anthropic.error.AnthropicException
 import com.xemantic.ai.anthropic.message.Message
+import com.xemantic.ai.anthropic.message.StopReason
 import com.xemantic.ai.anthropic.message.System
+import com.xemantic.ai.anthropic.message.ToolResultMessageBuilder
 import com.xemantic.ai.anthropic.message.plusAssign
 import com.xemantic.ai.anthropic.tool.Tool
 import io.ktor.client.HttpClient
@@ -124,7 +126,7 @@ suspend fun claudine(
 
             conversation += response
 
-            val toolResults = mutableListOf<ToolResult>()
+            val toolResultMessageBuilder = ToolResultMessageBuilder()
             response.content.forEach {
                 when (it) {
                     is Text -> {
@@ -150,18 +152,16 @@ suspend fun claudine(
                                 }
                             }
                         }
-                        toolResults += result
+                        toolResultMessageBuilder.add(result)
                     }
 
                     else -> println("[Error]: Unexpected content type: $it")
                 }
             }
 
-            agentLoop = toolResults.isNotEmpty()
+            agentLoop = response.stopReason == StopReason.TOOL_USE
             if (agentLoop) {
-                conversation += Message {
-                    content += toolResults
-                }
+                conversation += toolResultMessageBuilder.build()
             }
 
         } while (agentLoop)

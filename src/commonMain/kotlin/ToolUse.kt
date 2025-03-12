@@ -26,6 +26,7 @@ import com.xemantic.ai.file.magic.detectMediaType
 import com.xemantic.ai.file.magic.readText
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
+import io.ktor.client.request.head
 import io.ktor.client.statement.bodyAsBytes
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
@@ -112,20 +113,25 @@ val ReadBinaryFiles.info
 ${paths.pathInfo()}
 |
 | purpose: $purpose
+|
 """.trimIndent()
 
 suspend fun OpenUrl.use(client: HttpClient): Content {
-    val url = if (expectHtml == null || expectHtml) "https://r.jina.ai/$url" else url
-    val response = client.get(url)
-    val contentType = response.contentType()
+    val head = client.head(url)
+    val contentType = head.contentType()
     return if (contentType != null) {
-        if (contentType.match(ContentType.Text.Html) || contentType.match(ContentType.Text.Plain)) {
-            Text(response.bodyAsText())
+        val effectiveUrl = if (contentType.match(ContentType.Text.Html)) {
+            "https://r.jina.ai/$url"
         } else {
-            response.bodyAsBytes().toContent()
+            url
+        }
+        if (contentType.match(ContentType.Text.Html) || contentType.match(ContentType.Text.Plain)) {
+            Text(client.get(effectiveUrl).bodyAsText())
+        } else {
+            client.get(effectiveUrl).bodyAsBytes().toContent()
         }
     } else {
-        Text(response.bodyAsText())
+        client.get(url).bodyAsBytes().toContent()
     }
 }
 
@@ -133,10 +139,9 @@ val OpenUrl.info
     get() = """
 |
 | url: $url
-| expect HTML: ${expectHtml == null || expectHtml}
 | purpose: $purpose
+|
 """.trimIndent()
-
 
 fun getTooUseInfo(toolInput: Any) = when (toolInput) {
     is ExecuteShellCommand -> toolInput.info
