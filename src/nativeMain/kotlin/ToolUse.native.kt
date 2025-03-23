@@ -21,135 +21,136 @@ package com.xemantic.ai.claudine
 import kotlinx.cinterop.*
 import kotlinx.cinterop.IntVar
 import kotlinx.cinterop.alloc
-import kotlinx.cinterop.value
 import platform.posix.*
-import kotlin.concurrent.AtomicInt
-import kotlinx.io.files.Path
-import kotlinx.io.files.SystemFileSystem
-import kotlin.time.Duration.Companion.seconds
 
+@OptIn(ExperimentalForeignApi::class)
 actual fun ExecuteShellCommand.use(): String {
-    val workingDirectory = workingDir.sanitizePath()
-    
-    // Create temporary files for capturing stdout and stderr
-    val tempStdoutPath = createTempFile("claudine", "stdout")
-    val tempStderrPath = createTempFile("claudine", "stderr")
-    
-    // Build the command with redirection
-    val fullCommand = "${getShellCommand()[0]} ${getShellCommand()[1]} \"cd $workingDirectory && $command > $tempStdoutPath 2> $tempStderrPath\""
-    
-    // Execute the command
-    // TODO finish this implementation
-    //val exitCode = executeWithTimeout(fullCommand, timeout.seconds)
-    val exitCode = -1
 
-    // Read the output files
-//    val stdout = readFileContent(tempStdoutPath)
-//    val stderr = readFileContent(tempStderrPath)
-//
-//    // Clean up temporary files
-//    try {
-//        unlink(tempStdoutPath)
-//        unlink(tempStderrPath)
-//    } catch (e: Exception) {
-//        // Ignore cleanup errors
-//    }
-    
-//    return if (exitCode != 0) {
-//        "Command exited with non-zero status: $exitCode\nStdout:\n$stdout\nStderr:\n$stderr"
-//    } else {
-//        stdout
-//    }
-    TODO("Not implemented yet")
+    val sanitizedWorkingDir = workingDir.sanitizePath()
+
+    // Create pipes for stdout/stderr
+    val pipefd = IntArray(2)
+    if (pipe(pipefd.refTo(0)) != 0) {
+        throw Error("Failed to create pipe: ${strerror(errno)?.toKString()}")
+    }
+
+    // Fork process
+    val pid = fork()
+
+    when (pid) {
+        -1 -> {
+            throw Error("Fork failed: ${strerror(errno)?.toKString()}")
+        }
+        0 -> {
+            // Child process
+            try {
+                // Change directory
+                if (chdir(sanitizedWorkingDir) != 0) {
+                    perror("chdir failed")
+                    _exit(1)
+                }
+
+                // Close read end
+                close(pipefd[0])
+
+                // Redirect stdout and stderr to pipe
+                dup2(pipefd[1], STDOUT_FILENO)
+                dup2(pipefd[1], STDERR_FILENO)
+                close(pipefd[1])
+
+                // Build full command
+                val fullCommand = listOf("bash", "-c") + command
+
+                // Convert to C-style array
+                memScoped {
+                    val args = allocArray<CPointerVar<ByteVar>>(fullCommand.size + 1)
+                    fullCommand.forEachIndexed { index, arg ->
+                        args[index] = arg.cstr.ptr
+                    }
+                    args[fullCommand.size] = null
+
+                    // Execute command
+                    execvp(args[0]!!.toKString(), args)
+
+                    // If we get here, exec failed
+                    perror("execvp failed")
+                }
+            } finally {
+                _exit(1)
+            }
+        }
+        else -> {
+            // Parent process
+            close(pipefd[1]) // Close write end
+
+            // Set up for timeout handling
+            val startTime = time(null)
+            val output = StringBuilder()
+
+            try {
+                // Read output
+                val buffer = ByteArray(4096)
+
+                memScoped {
+                    val status = alloc<IntVar>()
+                    var processFinished = false
+
+                    // Wait for process with timeout
+                    while (!processFinished && (time(null) - startTime < timeout)) {
+                        val waitResult = waitpid(pid, status.ptr, WNOHANG)
+
+                        if (waitResult == pid) {
+                            processFinished = true
+                        } else if (waitResult == -1) {
+                            throw Error("waitpid failed: ${strerror(errno)?.toKString()}")
+                        }
+
+                        // Read available output
+                        buffer.usePinned { pinnedBuffer ->
+                            val bytesRead = read(pipefd[0], pinnedBuffer.addressOf(0), buffer.size.toULong())
+                            if (bytesRead > 0) {
+                                output.append(buffer.toKString().substring(0, bytesRead.toInt()))
+                            }
+                        }
+
+                        if (!processFinished) {
+                            usleep(100_000u) // 100ms
+                        }
+                    }
+
+                    // Kill if timeout
+                    if (!processFinished) {
+                        kill(pid, SIGKILL)
+                        waitpid(pid, status.ptr, 0)
+                    }
+
+                    // Read any remaining output
+                    while (true) {
+                        buffer.usePinned { pinnedBuffer ->
+                            val bytesRead = read(pipefd[0], pinnedBuffer.addressOf(0), buffer.size.toULong())
+                            if (bytesRead <= 0) return@usePinned
+                            output.append(buffer.toKString().substring(0, bytesRead.toInt()))
+                        }
+                    }
+                }
+            } finally {
+                close(pipefd[0])
+            }
+
+            return output.toString()
+        }
+    }
+    return ""
 }
-
-//@OptIn(ExperimentalForeignApi::class)
-//private fun executeWithTimeout(command: String, timeout: kotlin.time.Duration): Int {
-//    val exitCode = AtomicInt(0)
-//    val isRunning = AtomicInt(1)
-//
-//    // Start process
-//    val pid = fork()
-//
-//    when {
-//        pid < 0 -> {
-//            // Fork failed
-//            return -1
-//        }
-//        pid == 0 -> {
-//            // Child process
-//            system(command)
-//            exit(0)
-//        }
-//        else -> {
-//            // Parent process
-//            // Set up a timer to kill the process if it exceeds the timeout
-//            val startTime = time(null)
-//            val timeoutSeconds = timeout.inWholeSeconds
-//
-//            while (isRunning.value > 0) {
-//                // Check if process has finished
-//                val status = kotlinx.cinterop.alloc<IntVar>()
-//                val result = waitpid(pid, status.ptr, WNOHANG)
-//
-//                if (result == pid) {
-//                    // Process finished
-//                    exitCode.value = status.value shr 8 and 0xFF  // Extract exit code
-//                    isRunning.value = 0
-//                } else {
-//                    // Check if we've exceeded the timeout
-//                    val currentTime = time(null)
-//                    if (currentTime - startTime > timeoutSeconds) {
-//                        // Kill the process
-//                        kill(pid, SIGKILL)
-//                        waitpid(pid, null, 0)  // Clean up zombie
-//                        return -1  // Indicate timeout
-//                    }
-//
-//                    // Sleep briefly to avoid busy-waiting
-//                    usleep(100_000u)  // 100ms
-//                }
-//            }
-//
-//            return exitCode.value
-//        }
-//    }
-//}
 
 @OptIn(ExperimentalForeignApi::class)
-private fun createTempFile(prefix: String, suffix: String): String {
-    val tempDir = "/tmp"  // Standard temp directory on Unix-like systems
-    val uniqueId = time(null).toString() + "_" + getpid().toString()
-    return "$tempDir/${prefix}_${uniqueId}_$suffix"
-}
+private val userHomeDir = getenv("HOME")?.toKString()
+    ?: getpwuid(getuid())?.pointed?.pw_dir?.toKString()
+    ?: throw Error("Could not determine user home directory")
 
-//private fun readFileContent(path: String): String {
-//    return try {
-//        Path(path).let { filePath ->
-//            if (SystemFileSystem.exists(filePath)) {
-//                SystemFileSystem.source(filePath).use { source ->
-//                    source.rea
-//                }
-//            } else {
-//                ""
-//            }
-//        }
-//    } catch (e: Exception) {
-//        "Error reading file: ${e.message}"
-//    }
-//}
-
-@OptIn(ExperimentalForeignApi::class)
-private fun String?.sanitizePath(): String {
-    if (this == null) {
-        return "."
+private fun String?.sanitizePath(): String =
+    when {
+        this == null -> "."
+        startsWith("~") -> replace("~", userHomeDir)
+        else -> this
     }
-    
-    // Handle home directory expansion
-    val homeDir = getenv("HOME")?.toKString() ?: "."
-    return if (this.startsWith("~")) {
-        this.replaceFirst("~", homeDir)
-    } else {
-        this
-    }
-}
