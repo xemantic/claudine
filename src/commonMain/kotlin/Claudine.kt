@@ -19,16 +19,20 @@
 package com.xemantic.ai.claudine
 
 import com.xemantic.ai.anthropic.Anthropic
-import com.xemantic.ai.anthropic.content.Text
+import com.xemantic.ai.anthropic.AnthropicConfigException
+import com.xemantic.ai.anthropic.Model
+import com.xemantic.ai.anthropic.cache.CacheControl
+import com.xemantic.ai.anthropic.collections.transformLast
 import com.xemantic.ai.anthropic.content.ToolResult
 import com.xemantic.ai.anthropic.content.ToolUse
-import com.xemantic.ai.anthropic.error.AnthropicException
 import com.xemantic.ai.anthropic.message.Message
 import com.xemantic.ai.anthropic.message.StopReason
 import com.xemantic.ai.anthropic.message.System
 import com.xemantic.ai.anthropic.message.ToolResultMessageBuilder
 import com.xemantic.ai.anthropic.message.plusAssign
 import com.xemantic.ai.anthropic.tool.Tool
+import com.xemantic.ai.anthropic.usage.Cost
+import com.xemantic.ai.anthropic.usage.Usage
 import io.ktor.client.HttpClient
 
 val claudineSystemPrompt = """
@@ -62,36 +66,49 @@ When analyzing the source code, work in 2 steps:
 Always verify file sizes and types before processing, and never assume a file is small enough to read directly without checking first.
 
 The operating system of human's machine: $operatingSystem
+
 """
 
 fun environmentContextSystemPrompt() = """
-Current date: ${describeCurrentMoment()}
+Current date: ${describeCurrentMoment()} (conversation start)
 """
 
-fun systemPrompt() = listOf(
-    claudineSystemPrompt,
-    environmentContextSystemPrompt()
-).map {
-    System(text = it)
-}
-
+/**
+ * Starts claudine agent.
+ *
+ * @param autoConfirmToolUse auto confirms tools use if set to `true`, asks for confirmation every time otherwise.
+ * @return the exit code
+ */
 suspend fun claudine(
     autoConfirmToolUse: Boolean,
-) {
-
-    println("[Claudine]> Connecting human and human's machine to cognition of Claude AI")
+): Int {
 
     val httpClient = HttpClient()
 
     val anthropic = try {
-        Anthropic()
-    } catch (e: AnthropicException) {
-        println(e.message) // most likely we don't have ANTHROPIC_API_KEY
-        return
+        Anthropic {
+            anthropicBeta = listOf(
+                "token-efficient-tools-2025-02-19",
+                "prompt-caching-2024-07-31"
+            )
+        }
+    } catch (e: AnthropicConfigException) {
+        println(e.message)
+        return 1 // exit code
     }
 
+    println("[Claudine]> Connecting human and human's machine to cognition of Claude AI")
+
     val conversation = mutableListOf<Message>()
-    val cacheManager = CacheManager()
+    var totalUsage = Usage.ZERO
+    var totalCost = Cost.ZERO
+    val systemPrompt = listOf(
+        System(
+            text = claudineSystemPrompt + environmentContextSystemPrompt(),
+            cacheControl = CacheControl.Ephemeral()
+        )
+    )
+
     val claudineTools = listOf(
         Tool<ExecuteShellCommand> { use() },
         Tool<CreateFile> { use() },
@@ -117,8 +134,18 @@ suspend fun claudine(
                 println("[Claudine] ...Processing tool results...")
             }
             val response = anthropic.messages.create {
-                system = systemPrompt()
-                messages = conversation
+                system = systemPrompt
+                // TODO this should go to the SDK
+                messages = conversation.transformLast {
+                    copy {
+                        content = content.transformLast {
+                            alterCacheControl(
+                                CacheControl.Ephemeral()
+                            )
+                        }
+                    }
+                }
+                // TODO check again what max tokens means for 3.7
                 maxTokens = 4096 * 2 // for the latest model
                 tools = claudineTools
                 // TODO it should be taken from the default which is not passed in Anthropic now, we need unit tests for this
@@ -126,37 +153,40 @@ suspend fun claudine(
 
             conversation += response
 
+            response.text?.run {
+                println("[Claudine]> ${response.text}")
+            }
+
+            totalUsage += response.usage
+            val cost = response.usage.cost(Model.CLAUDE_3_7_SONNET.cost)
+            totalCost += cost
+
+            println("[Claudine]> Tax:")
+            print(costReport(response.usage, totalUsage, cost, totalCost))
+            println("|")
+
             val toolResultMessageBuilder = ToolResultMessageBuilder()
-            response.content.forEach {
-                when (it) {
-                    is Text -> {
-                        println("[Claudine]> ${it.text}")
-                    }
+            response.content.filterIsInstance<ToolUse>().forEach {
+                val input = it.decodeInput() as WithPurpose
+                println("[Claudine]> I want to use ${it.name} tool: ${input.purpose}")
+                println(getTooUseInfo(input))
 
-                    is ToolUse -> {
-                        println("[Claudine]> I want to use ${it.name} tool")
-                        println(getTooUseInfo(it.decodeInput()))
-
-                        val result = if (autoConfirmToolUse) {
-                            it.use()
-                        } else {
-                            println("[Claudine]> Can I use this tool? [yes/exit/or type a reason not to run it]")
-                            print("[me]> ")
-                            when (val confirmLine = readln()) {
-                                "yes" -> it.use()
-                                "exit" -> return
-                                else -> ToolResult {
-                                    toolUseId = it.id
-                                    isError = true
-                                    +"The human refused to run this command on their machine with the following reason: $confirmLine"
-                                }
-                            }
+                val result = if (autoConfirmToolUse) {
+                    it.use()
+                } else {
+                    println("[Claudine]> Can I use this tool? [yes/exit/or type a reason not to run it]")
+                    print("[me]> ")
+                    when (val confirmLine = readln()) {
+                        "yes" -> it.use()
+                        "exit" -> return 0 // exit code
+                        else -> ToolResult {
+                            toolUseId = it.id
+                            isError = true
+                            +"The human refused to run this command on their machine with the following reason: $confirmLine"
                         }
-                        toolResultMessageBuilder.add(result)
                     }
-
-                    else -> println("[Error]: Unexpected content type: $it")
                 }
+                toolResultMessageBuilder.add(result)
             }
 
             agentLoop = response.stopReason == StopReason.TOOL_USE
@@ -168,19 +198,5 @@ suspend fun claudine(
 
     }
 
-}
-
-class CacheManager(
-    numberOfCachableElements: Int = 4 // depends on the model
-) {
-
-    var permissions: Int = numberOfCachableElements
-
-    fun canCache(): Boolean =
-        if (permissions == 0) false
-        else {
-            permissions--
-            true
-        }
-
+    return 0 // exit code
 }

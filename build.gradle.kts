@@ -22,7 +22,6 @@ kotlin {
 
     applyDefaultHierarchyTemplate()
 
-
     compilerOptions {
         apiVersion = kotlinTarget
         languageVersion = kotlinTarget
@@ -32,6 +31,7 @@ kotlin {
     }
 
     jvm {
+
         // set up according to https://jakewharton.com/gradle-toolchains-are-rarely-a-good-idea/
         compilerOptions {
             apiVersion = kotlinTarget
@@ -40,6 +40,13 @@ kotlin {
             freeCompilerArgs.add("-Xjdk-release=$javaTarget")
             progressiveMode = true
         }
+
+//        binaries {
+//            executable {
+//                mainClass.set("com.xemantic.ai.claudine.ClaudineMainKt")
+//            }
+//        }
+
     }
 
 //    macosArm64 {
@@ -104,13 +111,13 @@ kotlin {
             dependsOn(jvmAndPosixTest)
         }
 
-        nativeMain {
-            dependsOn(jvmAndPosixMain)
-        }
-
-        nativeTest {
-            dependsOn(jvmAndPosixTest)
-        }
+//        nativeMain {
+//            dependsOn(jvmAndPosixMain)
+//        }
+//
+//        nativeTest {
+//            dependsOn(jvmAndPosixTest)
+//        }
 
 //        linuxMain {
 //            dependencies {

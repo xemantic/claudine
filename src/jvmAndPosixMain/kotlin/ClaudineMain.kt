@@ -19,13 +19,15 @@
 package com.xemantic.ai.claudine
 
 import kotlinx.coroutines.runBlocking
+import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
 
     val autoConfirmToolUse = args.isNotEmpty() && args[0] == "-y"
 
-    runBlocking {
+    val exitCode = runBlocking {
         claudine(autoConfirmToolUse)
     }
 
+    exitProcess(exitCode)
 }

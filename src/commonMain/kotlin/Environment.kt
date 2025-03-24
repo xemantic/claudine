@@ -41,7 +41,7 @@ fun getShellCommand() = if (
 ) {
     listOf("powershell.exe", "-Command")
 } else {
-    listOf("sh", "-c")
+    listOf("/bin/bash", "-c")
 }
 
 // time details to be moved together

@@ -62,8 +62,6 @@ val CreateFile.info
 |
 | $path
 |
-| purpose: $purpose
-|
 """.trimIndent()
 
 @OptIn(ExperimentalEncodingApi::class)
@@ -82,7 +80,6 @@ val ExecuteShellCommand.info
 |
 | $ $$command
 |
-| purpose: $$purpose
 | working dir: $${workingDir ?: "."}
 | timeout: $$timeout seconds
 |
@@ -104,16 +101,12 @@ val ReadFiles.info
 |    
 ${paths.pathInfo()}
 |
-| purpose: $purpose
-|
 """.trimIndent()
 
 val ReadBinaryFiles.info
     get() = """
 |
 ${paths.pathInfo()}
-|
-| purpose: $purpose
 |
 """.trimIndent()
 
@@ -152,11 +145,10 @@ val OpenUrl.info
     get() = """
 |
 | url: $url
-| purpose: $purpose
 |
 """.trimIndent()
 
-fun getTooUseInfo(toolInput: Any) = when (toolInput) {
+fun getTooUseInfo(toolInput: WithPurpose) = when (toolInput) {
     is ExecuteShellCommand -> toolInput.info
     is CreateFile -> toolInput.info
     is ReadFiles -> toolInput.info

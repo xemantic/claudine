@@ -21,6 +21,10 @@ package com.xemantic.ai.claudine
 import com.xemantic.ai.tool.schema.meta.Description
 import kotlinx.serialization.SerialName
 
+interface WithPurpose {
+    val purpose: String
+}
+
 @SerialName("ExecuteShellCommand")
 @Description("""Executes a shell command on human's machine with specified parameters.
 
@@ -37,7 +41,7 @@ data class ExecuteShellCommand(
     @Description("The shell command to execute")
     val command: String,
     @Description("The purpose of running this command")
-    val purpose: String,
+    override val purpose: String,
     @Description(
         "The directory where the command will be executed (absolute path recommended), " +
                 "if omitted or null, the current working dir will be used"
@@ -45,7 +49,7 @@ data class ExecuteShellCommand(
     val workingDir: String? = null,
     @Description("The timeout is defined in seconds")
     val timeout: Int
-)
+) : WithPurpose
 
 @SerialName("CreateFile")
 @Description("Creates a file on human's machine")
@@ -53,7 +57,7 @@ data class CreateFile(
     @Description("The absolute file path")
     val path: String,
     @Description("The purpose of creating this file")
-    val purpose: String,
+    override val purpose: String,
     @Description("The content to write")
     val content: String,
     @Description(
@@ -61,7 +65,7 @@ data class CreateFile(
                 "If omitted then defaults to false."
     )
     val base64: Boolean? = null
-)
+) : WithPurpose
 
 @SerialName("ReadBinaryFiles")
 @Description("""Reads binary files from human's machine, so they can be analyzed.
@@ -76,8 +80,8 @@ data class ReadBinaryFiles(
     )
     val paths: List<String>,
     @Description("The purpose of reading these files")
-    val purpose: String
-)
+    override val purpose: String
+) : WithPurpose
 
 @SerialName("ReadFiles")
 @Description("""Reads text files from human's machine.
@@ -90,13 +94,13 @@ data class ReadFiles(
     @Description("The list of absolute file paths.")
     val paths: List<String>,
     @Description("The purpose of reading these files")
-    val purpose: String
-)
+    override val purpose: String
+) : WithPurpose
 
 @SerialName("OpenUrl")
 @Description("Reads contents of an URL")
 data class OpenUrl(
     val url: String,
     @Description("The purpose of opening this URL")
-    val purpose: String
-)
+    override val purpose: String
+) : WithPurpose
