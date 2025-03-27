@@ -25,6 +25,8 @@ import kotlinx.datetime.toLocalDateTime
 
 expect val operatingSystem: String
 
+expect val userHomeDir: String
+
 // Might be needed for other agents, so we can move it to a library
 fun describeCurrentMoment(): String {
     val now = Clock.System.now()

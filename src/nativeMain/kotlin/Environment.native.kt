@@ -18,8 +18,19 @@
 
 package com.xemantic.ai.claudine
 
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.pointed
+import kotlinx.cinterop.toKString
+import platform.posix.getenv
+import platform.posix.getpwuid
+import platform.posix.getuid
 import kotlin.experimental.ExperimentalNativeApi
 
 @OptIn(ExperimentalNativeApi::class)
 actual val operatingSystem: String
     get() = Platform.osFamily.name
+
+@OptIn(ExperimentalForeignApi::class)
+actual val userHomeDir: String = getenv("HOME")?.toKString()
+    ?: getpwuid(getuid())?.pointed?.pw_dir?.toKString()
+    ?: throw Error("Could not determine user home directory")

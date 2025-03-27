@@ -16,29 +16,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.xemantic.ai.claudine
+package com.xemantic.ai.claudine.tool
 
-import java.io.File
-import java.util.concurrent.TimeUnit
+import kotlinx.cinterop.ByteVar
+import kotlinx.cinterop.CPointer
+import kotlinx.cinterop.CValuesRef
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.toKString
+import platform.posix.FILE
+import platform.posix._getcwd
+import platform.posix._pclose
+import platform.posix._popen
+import platform.posix.getenv
 
-actual fun ExecuteShellCommand.use(): String = ProcessBuilder(
-    getShellCommand() + command
-)
-    .directory(File(workingDir.sanitizePath()))
-    .redirectErrorStream(true)
-    .redirectOutput(ProcessBuilder.Redirect.PIPE)
-    .start().let {
-        it.waitFor(timeout.toLong(), TimeUnit.SECONDS)
-        it.inputStream.bufferedReader().readText()
-    }
+@OptIn(ExperimentalForeignApi::class)
+actual fun executeCommand(command: String): CPointer<FILE>? = _popen(command, "r")
 
-
-private val userHomeDir = System.getProperty("user.home")!! // it must exist
-
-private fun String?.sanitizePath(): String = if (this == null) {
-    "."
-} else if (startsWith("~")) {
-    replace("~", userHomeDir)
-} else {
-    this
-}
+//@OptIn(ExperimentalForeignApi::class)
+//actual fun closeCommand(fp: CPointer<FILE>?): Int = _pclose(fp)

@@ -18,6 +18,7 @@
 
 package com.xemantic.ai.claudine
 
+import com.xemantic.ai.claudine.tool.ExecuteShellCommand
 import com.xemantic.kotlin.test.assert
 import kotlin.test.Test
 
@@ -36,7 +37,7 @@ class ExecuteShellCommandTest {
         val result = tool.use()
 
         // then
-        assert("README.md" in result)
+        assert(result.contains("README.md"))
     }
 
 }

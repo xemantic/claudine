@@ -16,8 +16,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.xemantic.ai.claudine
+package com.xemantic.ai.claudine.tool
 
-actual val operatingSystem: String get() = System.getProperty("os.name")
+import com.xemantic.ai.claudine.getShellCommand
+import java.io.File
+import java.util.concurrent.TimeUnit
 
-actual val userHomeDir = System.getProperty("user.home")!! // it must exist
+actual fun ExecuteShellCommand.execute(): ExecutionResult = ProcessBuilder(
+    getShellCommand() + command
+)
+    .directory(File(workingDir.sanitizePath()))
+    .redirectErrorStream(true)
+    .redirectOutput(ProcessBuilder.Redirect.PIPE)
+    .start().let {
+        val exited = it.waitFor(timeout.toLong(), TimeUnit.SECONDS)
+        val output = it.inputStream.bufferedReader().readText()
+        if (exited) ExecutionResult(exitCode = it.exitValue(), output)
+        else ExecutionResult(timeout = true, output = output)
+    }

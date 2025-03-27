@@ -16,22 +16,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.xemantic.ai.claudine
+package com.xemantic.ai.claudine.tool
 
+import com.xemantic.ai.claudine.getShellCommand
 import kotlinx.cinterop.*
-import kotlinx.cinterop.IntVar
-import kotlinx.cinterop.alloc
 import platform.posix.*
 
 @OptIn(ExperimentalForeignApi::class)
-actual fun ExecuteShellCommand.use(): String {
+actual fun ExecuteShellCommand.execute(): ExecutionResult {
 
     val sanitizedWorkingDir = workingDir.sanitizePath()
 
     // Create pipes for stdout/stderr
     val pipefd = IntArray(2)
     if (pipe(pipefd.refTo(0)) != 0) {
-        throw Error("Failed to create pipe: ${strerror(errno)?.toKString()}")
+        return ExecutionResult(
+            exitCode = -1,
+            output = "Failed to create pipe: ${strerror(errno)?.toKString()}",
+            timeout = false
+        )
     }
 
     // Fork process
@@ -39,7 +42,11 @@ actual fun ExecuteShellCommand.use(): String {
 
     when (pid) {
         -1 -> {
-            throw Error("Fork failed: ${strerror(errno)?.toKString()}")
+            return ExecutionResult(
+                exitCode = -1,
+                output = "Fork failed: ${strerror(errno)?.toKString()}",
+                timeout = false
+            )
         }
         0 -> {
             // Child process
@@ -87,6 +94,8 @@ actual fun ExecuteShellCommand.use(): String {
             // Set up for timeout handling
             val startTime = time(null)
             val output = StringBuilder()
+            var timedOut = false
+            var exitCode = -1
 
             try {
                 // Read output
@@ -102,8 +111,13 @@ actual fun ExecuteShellCommand.use(): String {
 
                         if (waitResult == pid) {
                             processFinished = true
+                            exitCode = status.value
                         } else if (waitResult == -1) {
-                            throw Error("waitpid failed: ${strerror(errno)?.toKString()}")
+                            return ExecutionResult(
+                                exitCode = -1,
+                                output = "waitpid failed: ${strerror(errno)?.toKString()}",
+                                timeout = false
+                            )
                         }
 
                         // Read available output
@@ -124,6 +138,7 @@ actual fun ExecuteShellCommand.use(): String {
                     if (!processFinished) {
                         kill(pid, SIGKILL)
                         waitpid(pid, status.ptr, 0)
+                        timedOut = true
                         output.append("\nCommand timed out after $timeout seconds and was terminated.")
                     }
 
@@ -144,21 +159,19 @@ actual fun ExecuteShellCommand.use(): String {
             } finally {
                 close(pipefd[0])
             }
-
-            return output.toString()
+            
+            return ExecutionResult(
+                exitCode = exitCode,
+                output = output.toString(),
+                timeout = timedOut
+            )
         }
     }
-    return ""
+    
+    // This should never be reached due to the returns in each branch above
+    return ExecutionResult(
+        exitCode = -1,
+        output = "Unexpected execution path in native shell command execution",
+        timeout = false
+    )
 }
-
-@OptIn(ExperimentalForeignApi::class)
-private val userHomeDir = getenv("HOME")?.toKString()
-    ?: getpwuid(getuid())?.pointed?.pw_dir?.toKString()
-    ?: throw Error("Could not determine user home directory")
-
-private fun String?.sanitizePath(): String =
-    when {
-        this == null -> "."
-        startsWith("~") -> replace("~", userHomeDir)
-        else -> this
-    }

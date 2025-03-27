@@ -14,7 +14,6 @@ plugins {
 
 val buildNative: String? by project
 val buildsNative: Boolean = (buildNative != null) && (buildNative!!.uppercase() == "true")
-//val buildsNative = true
 
 val javaTarget = libs.versions.javaTarget.get()
 val kotlinTarget = KotlinVersion.fromVersion(libs.versions.kotlinTarget.get())

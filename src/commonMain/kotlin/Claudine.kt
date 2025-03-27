@@ -33,6 +33,13 @@ import com.xemantic.ai.anthropic.message.plusAssign
 import com.xemantic.ai.anthropic.tool.Tool
 import com.xemantic.ai.anthropic.usage.Cost
 import com.xemantic.ai.anthropic.usage.Usage
+import com.xemantic.ai.claudine.tool.ClaudineTool
+import com.xemantic.ai.claudine.tool.CreateFile
+import com.xemantic.ai.claudine.tool.ExecuteShellCommand
+import com.xemantic.ai.claudine.tool.OpenUrl
+import com.xemantic.ai.claudine.tool.ReadBinaryFiles
+import com.xemantic.ai.claudine.tool.ReadFiles
+import com.xemantic.ai.claudine.tool.formatAsToolDescription
 import io.ktor.client.HttpClient
 
 val claudineSystemPrompt = """
@@ -167,9 +174,9 @@ suspend fun claudine(
 
             val toolResultMessageBuilder = ToolResultMessageBuilder()
             response.content.filterIsInstance<ToolUse>().forEach {
-                val input = it.decodeInput() as WithPurpose
-                println("[Claudine]> I want to use ${it.name} tool: ${input.purpose}")
-                println(getTooUseInfo(input))
+                val toolInput = it.decodeInput() as ClaudineTool
+                println("[Claudine]> I want to use ${it.name} tool: ${toolInput.purpose}")
+                println(toolInput.info.formatAsToolDescription())
 
                 val result = if (autoConfirmToolUse) {
                     it.use()
