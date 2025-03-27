@@ -7,13 +7,13 @@ kotlinxCoroutines = "1.10.1"
 kotlinxSerialization = "1.8.0"
 kotlinxIo = "0.7.0"
 
-ktor = "3.1.1"
+anthropicSdkKotlin = "0.19.0"
+xemanticKotlinTest = "1.8.10"
+
+ktor = "3.1.2"
 
 kotest = "6.0.0.M2"
 
-anthropicSdkKotlin = "0.19.0"
-
-kotlinLogging = "7.0.5"
 log4j = "2.24.1"
 jackson = "2.18.3"
 
@@ -25,9 +25,9 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerialization" }
 kotlinx-io = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinxIo" }
-kotlin-logging = { module = "io.github.oshai:kotlin-logging", version.ref = "kotlinLogging" }
 
 anthropic-sdk-kotlin = { module = "com.xemantic.ai:anthropic-sdk-kotlin", version.ref = "anthropicSdkKotlin" }
+xemantic-kotlin-test = { module = "com.xemantic.kotlin:xemantic-kotlin-test", version.ref = "xemanticKotlinTest" }
 
 log4j-slf4j2 = { group = "org.apache.logging.log4j", name = "log4j-slf4j2-impl", version.ref = "log4j" }
 log4j-core = { group = "org.apache.logging.log4j", name = "log4j-core", version.ref = "log4j" }
@@ -36,10 +36,6 @@ jackson-dataformat-yaml = { group = "com.fasterxml.jackson.dataformat", name = "
 
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 
-ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
-ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
-ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
-ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-client-java = { module = "io.ktor:ktor-client-java", version.ref = "ktor" }
 ktor-client-curl = { module = "io.ktor:ktor-client-curl", version.ref = "ktor" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
@@ -47,4 +43,5 @@ ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "kto
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-plugin-power-assert = { id = "org.jetbrains.kotlin.plugin.power-assert", version.ref = "kotlin" }
 versions = { id = "com.github.ben-manes.versions", version.ref = "versionsPlugin" }
