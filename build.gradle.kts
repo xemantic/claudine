@@ -14,6 +14,7 @@ plugins {
 
 val buildNative: String? by project
 val buildsNative: Boolean = (buildNative != null) && (buildNative!!.uppercase() == "true")
+//val buildsNative = true
 
 val javaTarget = libs.versions.javaTarget.get()
 val kotlinTarget = KotlinVersion.fromVersion(libs.versions.kotlinTarget.get())
@@ -54,25 +55,29 @@ kotlin {
         }
     }
 
-//    linuxX64 {
-//        claudineBinary()
-//    }
-//
-//    linuxArm64 {
-//        claudineBinary()
-//    }
+    if (buildsNative) {
 
-//    macosX64 {
-//        claudineBinary()
-//    }
+        linuxX64 {
+            claudineBinary()
+        }
 
-//    macosArm64 {
-//        claudineBinary()
-//    }
+        linuxArm64 {
+            claudineBinary()
+        }
 
-//    mingwX64 {
-//        claudineBinary()
-//    }
+        macosX64 {
+            claudineBinary()
+        }
+
+        macosArm64 {
+            claudineBinary()
+        }
+
+//        mingwX64 {
+//            claudineBinary()
+//        }
+
+    }
 
     sourceSets {
 

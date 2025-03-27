@@ -58,8 +58,9 @@ actual fun ExecuteShellCommand.use(): String {
                 dup2(pipefd[1], STDERR_FILENO)
                 close(pipefd[1])
 
-                // Build full command
-                val fullCommand = listOf("bash", "-c") + command
+                // Build full command using the common getShellCommand function
+                val shellArgs = getShellCommand()
+                val fullCommand = shellArgs + command
 
                 // Convert to C-style array
                 memScoped {
@@ -109,7 +110,8 @@ actual fun ExecuteShellCommand.use(): String {
                         buffer.usePinned { pinnedBuffer ->
                             val bytesRead = read(pipefd[0], pinnedBuffer.addressOf(0), buffer.size.toULong())
                             if (bytesRead > 0) {
-                                output.append(buffer.toKString().substring(0, bytesRead.toInt()))
+                                val validString = buffer.sliceArray(0 until bytesRead.toInt()).decodeToString()
+                                output.append(validString)
                             }
                         }
 
@@ -122,14 +124,20 @@ actual fun ExecuteShellCommand.use(): String {
                     if (!processFinished) {
                         kill(pid, SIGKILL)
                         waitpid(pid, status.ptr, 0)
+                        output.append("\nCommand timed out after $timeout seconds and was terminated.")
                     }
 
-                    // Read any remaining output
-                    while (true) {
+                    // Read any remaining output with proper loop exit condition
+                    var continueReading = true
+                    while (continueReading) {
                         buffer.usePinned { pinnedBuffer ->
                             val bytesRead = read(pipefd[0], pinnedBuffer.addressOf(0), buffer.size.toULong())
-                            if (bytesRead <= 0) return@usePinned
-                            output.append(buffer.toKString().substring(0, bytesRead.toInt()))
+                            if (bytesRead <= 0) {
+                                continueReading = false
+                            } else {
+                                val validString = buffer.sliceArray(0 until bytesRead.toInt()).decodeToString()
+                                output.append(validString)
+                            }
                         }
                     }
                 }
