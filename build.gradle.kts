@@ -3,12 +3,17 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.versions)
+    alias(libs.plugins.kotlin.plugin.power.assert)
 }
+
+val buildNative: String? by project
+val buildsNative: Boolean = (buildNative != null) && (buildNative!!.uppercase() == "true")
 
 val javaTarget = libs.versions.javaTarget.get()
 val kotlinTarget = KotlinVersion.fromVersion(libs.versions.kotlinTarget.get())
@@ -19,8 +24,6 @@ repositories {
 }
 
 kotlin {
-
-    applyDefaultHierarchyTemplate()
 
     compilerOptions {
         apiVersion = kotlinTarget
@@ -41,102 +44,78 @@ kotlin {
             progressiveMode = true
         }
 
-//        binaries {
-//            executable {
-//                mainClass.set("com.xemantic.ai.claudine.ClaudineMainKt")
-//            }
-//        }
-
     }
 
-//    macosArm64 {
-//        binaries {
-//            executable {
-//                entryPoint = "com.xemantic.ai.claudine.main"
-//            }
-//        }
+    fun KotlinNativeTarget.claudineBinary() {
+        binaries {
+            executable {
+                entryPoint = "com.xemantic.ai.claudine.main"
+            }
+        }
+    }
+
+//    linuxX64 {
+//        claudineBinary()
+//    }
+//
+//    linuxArm64 {
+//        claudineBinary()
 //    }
 
+//    macosX64 {
+//        claudineBinary()
+//    }
 
-//  js {
-//    browser()
-//    nodejs()
-//  }
+//    macosArm64 {
+//        claudineBinary()
+//    }
+
+//    mingwX64 {
+//        claudineBinary()
+//    }
 
     sourceSets {
 
         commonMain {
             dependencies {
-                implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.kotlinx.serialization.core)
                 implementation(libs.anthropic.sdk.kotlin)
+                implementation(libs.ktor.client.core)
             }
         }
 
-        val jvmAndPosixMain by creating {
-            dependsOn(commonMain.get())
-            dependencies {
-                implementation(libs.kotlinx.serialization.json) // TODO is it runtimeOnly?
-
-                implementation(libs.kotlinx.io)
-                implementation(libs.kotlin.logging)
-            }
-        }
-
-        val jvmAndPosixTest by creating {
-            dependsOn(commonTest.get())
+        commonTest {
             dependencies {
                 implementation(libs.kotlin.test)
-                implementation(libs.kotlinx.io)
                 implementation(libs.kotest.assertions.core)
+                implementation(libs.xemantic.kotlin.test)
             }
         }
 
         jvmMain {
-            dependsOn(jvmAndPosixMain)
             dependencies {
-                implementation(libs.ktor.client.java)
-                implementation(libs.ktor.client.core)
-                implementation(libs.ktor.client.content.negotiation)
-                implementation(libs.ktor.client.logging)
-                implementation(libs.ktor.serialization.kotlinx.json) // TODO is it runtimeOnly?
-                implementation(libs.log4j.slf4j2)
-                implementation(libs.log4j.core)
-                implementation(libs.jackson.databind)
-                implementation(libs.jackson.dataformat.yaml)
+                runtimeOnly(libs.ktor.client.java)
+
+                runtimeOnly(libs.log4j.slf4j2)
+                runtimeOnly(libs.log4j.core)
+                runtimeOnly(libs.jackson.databind)
+                runtimeOnly(libs.jackson.dataformat.yaml)
             }
         }
 
-        jvmTest {
-            dependsOn(jvmAndPosixTest)
+        if (buildsNative) {
+            linuxMain {
+                dependencies {
+                    implementation(libs.ktor.client.curl)
+                }
+            }
+
+            macosMain {
+                dependencies {
+                    implementation(libs.ktor.client.darwin)
+                }
+            }
         }
 
-//        nativeMain {
-//            dependsOn(jvmAndPosixMain)
-//        }
-//
-//        nativeTest {
-//            dependsOn(jvmAndPosixTest)
-//        }
-
-//        linuxMain {
-//            dependencies {
-//                implementation(libs.ktor.client.curl)
-//            }
-//        }
-//
-//        macosMain {
-//            dependencies {
-//                implementation(libs.ktor.client.darwin)
-//            }
-//        }
-
-//    jsMain {
-//      dependsOn(jvmAndPosixMain)
-//      dependencies {
-////        implementation("org.jetbrains.kotlinx:kotlinx-nodejs:0.0.7")
-//      }
-//    }
     }
 
 }
@@ -151,18 +130,30 @@ tasks.withType<Jar> {
         val main by kotlin.jvm().compilations.getting
         manifest {
             attributes(
-                "Main-Class" to "com.xemantic.ai.claudine.ClaudineMainKt",
+                "Main-Class" to "com.xemantic.ai.claudine.ClaudineMain_jvmKt"
             )
         }
         from({
-            main.runtimeDependencyFiles.files.filter { it.name.endsWith("jar") }.map { zipTree(it) }
+            main.runtimeDependencyFiles.files
+                .filter { it.name.endsWith("jar") }
+                .map { zipTree(it) }
         })
     }
 }
 
-// https://youtrack.jetbrains.com/issue/KT-64508/IndexOutOfBoundsException-in-Konan-StaticInitializersOptimization
-kotlin.targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget> {
-    binaries.all {
-        freeCompilerArgs += "-Xdisable-phases=RemoveRedundantCallsToStaticInitializersPhase"
+if (buildsNative) {
+    // most likely this is a problem only for mac
+    // https://youtrack.jetbrains.com/issue/KT-64508/IndexOutOfBoundsException-in-Konan-StaticInitializersOptimization
+    kotlin.targets.withType<KotlinNativeTarget> {
+        binaries.all {
+            freeCompilerArgs += "-Xdisable-phases=RemoveRedundantCallsToStaticInitializersPhase"
+        }
     }
+}
+
+powerAssert {
+    functions = listOf(
+        "com.xemantic.kotlin.test.assert",
+        "com.xemantic.kotlin.test.have"
+    )
 }

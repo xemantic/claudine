@@ -18,24 +18,16 @@
 
 package com.xemantic.ai.claudine
 
-import java.io.File
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.runBlocking
+import kotlin.system.exitProcess
 
-actual fun ExecuteShellCommand.use(): String = ProcessBuilder(
-    getShellCommand() + command
-)
-    .directory(File(workingDir.sanitizePath()))
-    .redirectErrorStream(true)
-    .redirectOutput(ProcessBuilder.Redirect.PIPE)
-    .start().let {
-        it.waitFor(timeout.toLong(), TimeUnit.SECONDS)
-        it.inputStream.bufferedReader().readText()
+fun main(args: Array<String>) {
+
+    val autoConfirmToolUse = args.isNotEmpty() && args[0] == "-y"
+
+    val exitCode = runBlocking {
+        claudine(autoConfirmToolUse)
     }
 
-
-private val userHomeDir = System.getProperty("user.home")!! // it must exist
-
-private fun String?.sanitizePath(): String =
-    if (this == null) {
-        "."
-    } else if (startsWith("~")) replace("~", userHomeDir) else this
+    exitProcess(exitCode)
+}
