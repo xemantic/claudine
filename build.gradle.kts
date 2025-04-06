@@ -13,7 +13,7 @@ plugins {
 }
 
 val buildNative: String? by project
-val buildsNative: Boolean = (buildNative != null) && (buildNative!!.uppercase() == "true")
+val buildsNative: Boolean = (buildNative != null) && (buildNative!!.lowercase() == "true")
 
 val javaTarget = libs.versions.javaTarget.get()
 val kotlinTarget = KotlinVersion.fromVersion(libs.versions.kotlinTarget.get())
@@ -84,6 +84,7 @@ kotlin {
             dependencies {
                 implementation(libs.anthropic.sdk.kotlin)
                 implementation(libs.ktor.client.core)
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0") // Added for SecondBrain
             }
         }
 
