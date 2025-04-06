@@ -36,6 +36,7 @@ import com.xemantic.ai.anthropic.usage.Usage
 import com.xemantic.ai.claudine.tool.ClaudineTool
 import com.xemantic.ai.claudine.tool.CreateFile
 import com.xemantic.ai.claudine.tool.ExecuteShellCommand
+import com.xemantic.ai.claudine.tool.Memory
 import com.xemantic.ai.claudine.tool.OpenUrl
 import com.xemantic.ai.claudine.tool.ReadBinaryFiles
 import com.xemantic.ai.claudine.tool.ReadFiles
@@ -72,6 +73,11 @@ When analyzing the source code, work in 2 steps:
 2. Then read all the text files at once using ReadFiles tool.
 
 Always verify file sizes and types before processing, and never assume a file is small enough to read directly without checking first.
+
+Memory Usage:
+- You have access to a Memory tool that lets you store and retrieve information across sessions.
+- Use this to remember important facts, user preferences, or previous interactions.
+- Memory operations include 'store', 'retrieve', 'list', and 'delete'.
 
 Your source code is located at:
 
@@ -127,7 +133,8 @@ suspend fun claudine(
         Tool<ReadBinaryFiles> { use() },
         Tool<ReadFiles> { use() },
         Tool<OpenUrl> { use(httpClient) },
-        Tool<TranscribeAudio> { use(httpClient) }
+        Tool<TranscribeAudio> { use(httpClient) },
+        Tool<Memory> { use() }
     )
 
     while (true) {

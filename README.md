@@ -91,6 +91,7 @@ Claudine can "reason", as much as Claude LLM can reason, so you can have any typ
 * CreateFile
 * ExecuteShellCommand
 * OpenUrl
+* TranscribeAudio
 
 _see [tools(src/commonMain/kotlin/tools) package_
 
@@ -101,10 +102,22 @@ Just these tools, and the [system prompt](src/commonMain/kotlin/Claudine.kt), al
 * Fully analyze a source code of your project and implement a feature.
 * Code new tools needed to achieve your objective, and execute them until the goal is fulfilled.
 * Obtain any contextual information from the internet.
+* Remember important information across sessions with the Memory tool.
 
 And many, many more, the sky is the limit ...
 
 Adding new specialized tools on your own is also quite straightforward.
+
+## Memory Across Sessions
+
+Claudine can remember information between different sessions using the Memory tool. This allows her to:
+
+* Store user preferences
+* Remember important facts about previous conversations
+* Maintain context across multiple interactions
+* Build a more personalized relationship over time
+
+See [MEMORY.md](MEMORY.md) for details on the Memory tool implementation and usage.
 
 ## How can I use this knowledge?
 
