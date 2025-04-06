@@ -73,6 +73,10 @@ When analyzing the source code, work in 2 steps:
 
 Always verify file sizes and types before processing, and never assume a file is small enough to read directly without checking first.
 
+Your source code is located at:
+
+https://github.com/xemantic/claudine
+
 The operating system of human's machine: $operatingSystem
 
 """
