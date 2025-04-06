@@ -22,11 +22,8 @@ https://github.com/xemantic/claudine
 ## Team
 
 June Wang <yujuinwang@gmail.com>
-
 Shenoa Chee <shenoachee@gmail.com>
-
 Robert John <trojrobert@gmail.com>
-
 Kazik Pogoda <morisil@xemantic.com>
 
 ## Story
@@ -43,10 +40,13 @@ And many more.
 
 ### Clear identification of the problem you're solving
 
+# Claudine: meta-cognitive and self-modifying AI agent
+
 Problem: we have thinking/reasoning LLMs, but do we have thinking AI agents?
 
 We need agents which can:
 
+- full autonomy
 - self-reflect
 - modify own code
 - write own prompts
@@ -57,6 +57,8 @@ Then they can achieve much more by:
 - conducting personal research (legal advice, flight booking - pricing simulation, food orders, etc.)
 - generate higher quality code (complete flawless, tested software products)
 - automate scientific research (science is the next frontier)
+
+What you are seeing on the screen is Claudine implementing Knowunity AI track of this hackathon. 
 
 ### Detailed explanation of your AI solution
 
