@@ -75,7 +75,7 @@ Always verify file sizes and types before processing, and never assume a file is
 
 Your source code is located at:
 
-https://github.com/xemantic/claudine
+git@github.com:xemantic/claudine.git
 
 The operating system of human's machine: $operatingSystem
 
