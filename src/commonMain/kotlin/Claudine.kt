@@ -39,7 +39,6 @@ import com.xemantic.ai.claudine.tool.ExecuteShellCommand
 import com.xemantic.ai.claudine.tool.OpenUrl
 import com.xemantic.ai.claudine.tool.ReadBinaryFiles
 import com.xemantic.ai.claudine.tool.ReadFiles
-import com.xemantic.ai.claudine.tool.TranscribeAudio
 import com.xemantic.ai.claudine.tool.formatAsToolDescription
 import io.ktor.client.HttpClient
 
@@ -126,8 +125,7 @@ suspend fun claudine(
         Tool<CreateFile> { use() },
         Tool<ReadBinaryFiles> { use() },
         Tool<ReadFiles> { use() },
-        Tool<OpenUrl> { use(httpClient) },
-        Tool<TranscribeAudio> { use(httpClient) }
+        Tool<OpenUrl> { use(httpClient) }
     )
 
     while (true) {

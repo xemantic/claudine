@@ -13,21 +13,55 @@ Claudine can also think about own thinking (meta-cognition), and write its own c
 
 ## How to use Claudine?
 
-:warning: I am working on packaging Claudine as a small native executable for each platform, until this happens, it has to run on the JVM.
+### Precondition: getting Anthropic API key
 
-```shell
-./gradlew build
-java -jar build/libs/claudine-jvm-0.1-SNAPSHOT.jar
-```
+Before starting the agent you need top define the `ANTHROPIC_API_KEY` environment variable. It can be obtained from [Anthropic console](https://console.anthropic.com/).
 
-The first time you run claudine, you will see a message that you need ANTHROPIC_API_KEY. It can be obtained
-from [Anthropic console](https://console.anthropic.com/) and then provided with:
+Open terminal and type
+
+Mac/Linux:
 
 ```shell
 export ANTHROPIC_API_KEY=your_key_goes_here
 ```
 
-The rest is self-explanatory - just talk with Claudine as a proxy to [Claude AI](https://claude.ai/).
+Windows (PowerShell):
+
+```powershell
+$env:ANTHROPIC_API_KEY = "your_key_goes_here"
+```
+
+### Running Claudine as JVM uberjar
+
+```shell
+./gradlew build
+./claudine
+```
+
+### Running Claudine from the native binary
+
+> [!NOTE]
+> Claudine can be compiled to a minimal native binary on Mac and Linux. Support for Windows native binary is still in the making (contributions are welcome).
+
+```shell
+./gradlew -PbuildNative=true build
+```
+
+It will build a native binary located at:
+
+```
+build/bin/your_platform/releaseExecutable/claudine.kexe
+```
+
+Where `your_platform` stands for:
+
+- `linuxArm64`
+- `linuxX64`
+- `macosArm64`
+- `macosX64`
+
+> [!NOTE]
+>  The `claudine.kexe` file can be copied under any name (e.g. `claudine` or `ai`), to the path included in your `PATH` environment variable.
 
 ## Who is Claudine?
 
@@ -40,9 +74,9 @@ Claudine is a relatively simple AI agent. It's part of [Xemantic's research on a
 Let's substitute these variables with something concrete:
 
 1. Anthropic API provides the Claude model.
-2. The most established information exchange standards are:
+2. The most established massive information exchange standards are:
     - Unix (standard command line tools of your machine give endless possibilities)
-    - HTTP
+    - World Wide Web Consortium (W3C) protocols and formats (HTTP, HTML, etc.)
 3. The data comes from:
     - Your hard drive which provides a vast supply of zeros and ones to the model.
     - The whole internet.
@@ -101,14 +135,15 @@ Just these tools, and the [system prompt](src/commonMain/kotlin/Claudine.kt), al
 * Fully analyze a source code of your project and implement a feature.
 * Code new tools needed to achieve your objective, and execute them until the goal is fulfilled.
 * Obtain any contextual information from the internet.
+* Improve itself, modify prompts and add new tools.
 
 And many, many more, the sky is the limit ...
 
-Adding new specialized tools on your own is also quite straightforward.
+Adding new specialized tools on your own is also quite straightforward, just ask claudine to do it.
 
 ## How can I use this knowledge?
 
-Claudine is a blueprint of an autonomous agent, therefore you can use it as an inspiration for implementing even more complex systems. Just remember about these 3 factors I mention earlier, and substitute them with specificity of your organization. For example the "standard" could be the SQL, and the "source of data" would be the database of your organization. In such scenario you need only 2 toos:
+Claudine is a blueprint of an autonomous agent, therefore you can use it as an inspiration for implementing even more complex systems. Just remember about these 3 factors I mention earlier, and substitute them with specificity of your organization. For example the "standard" could be the SQL, and the "source of data" would be the database of your organization. In such scenario you need only 2 tools:
 
 1. Database schema reader
 2. SQL executor
@@ -132,7 +167,7 @@ back to the parent session.
 Claudine is free software released under the [GNU General Public License v3.0 (GPL-3.0)](https://www.gnu.org/licenses/gpl-3.0.en.html).
 
 > [!NOTE]
-> If you need to obtain in individual license on other conditions, please contact us.
+> If you need to obtain an individual license on other conditions, please contact us.
 
 ### What this means:
 
