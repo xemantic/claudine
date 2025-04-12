@@ -86,5 +86,11 @@ fun costReport(
         "$${totalCost.cacheReadInputTokens}"
     )
     row("", "", "", "", "")
-    row("", "", "", "$${cost.total}", "$${totalCost.total}")
+    row(
+        "window",
+        "${usage.inputTokens + usage.outputTokens + (usage.cacheCreationInputTokens ?: 0) + (usage.cacheReadInputTokens ?: 0)}",
+        "",
+        "$${cost.total}",
+        "$${totalCost.total}"
+    )
 }.toString()

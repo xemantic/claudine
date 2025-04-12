@@ -58,10 +58,6 @@ When reading files:
    c. Use an image format with higher compression (e.g., WebP or JPEG) for the miniature.
    d. Store temporary files in the system's default temporary folder with unique names.
 
-When writing files:
-- Consider requesting multiple CreateFile tool uses at once, so that many files establishing a complete project can be created at once.
-- Switch to requesting individual CreateFile tool uses if the files to create are big and might exceed the max amount of output tokens.
-
 File operations:
 - Prefer using shell commands (via ExecuteShellCommand) for copying or moving files instead of ReadFiles and CreateFile tools.
 - When listing files with ExecuteShellCommand, use recursive lists with a maximum depth of 2 levels, to minimize the amount of excessive information quickly filling up the token window.
@@ -102,6 +98,7 @@ suspend fun claudine(
                 "token-efficient-tools-2025-02-19",
                 "prompt-caching-2024-07-31"
             )
+            defaultMaxTokens = 64000 // max for claude 3.7 Sonnet
         }
     } catch (e: AnthropicConfigException) {
         println(e.message)
@@ -156,10 +153,14 @@ suspend fun claudine(
                         }
                     }
                 }
-                // TODO check again what max tokens means for 3.7
-                maxTokens = 4096 * 2 // for the latest model
                 tools = claudineTools
-                // TODO it should be taken from the default which is not passed in Anthropic now, we need unit tests for this
+            }
+            if (response.stopReason == StopReason.MAX_TOKENS) {
+                println("[Claudine]> Error: max number of output tokens reached")
+                conversation[conversation.lastIndex] = conversation.last().copy {
+                    +"Limit the output not to exceed the limit of 64000 tokens"
+                }
+                continue
             }
 
             conversation += response
