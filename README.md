@@ -68,7 +68,7 @@ Where `your_platform` stands for:
 Claudine is a relatively simple AI agent. It's part of [Xemantic's research on agentic AI](https://xemantic.com/ai/) and it's powers and limitations. But don't be misled by the simplicity - the agentic power of an AI system is a function of these 3 factors which amplify each other:
 
 1. A language model with emergent reasoning capabilities.
-2. Well documented (therefore internalized by the model) information exchange standard.
+2. Well documented (therefore, internalized by the model) information exchange standard.
 3. Vast amount of data to operate on.
 
 Let's substitute these variables with something concrete:
@@ -118,7 +118,7 @@ graph TD
     style D2 fill:#dfd,stroke:#000,stroke-width:1px,color:#000
 ```
 
-Claudine can "reason", as much as Claude LLM can reason, so you can have any typical interaction like with a conversational bot. In addition, she can also use these tools on your machine:
+Claudine can _reason_, as much as Claude LLM can reason, so you can have any typical interaction like with a conversational bot. In addition, she can also use these tools on your machine:
 
 * ReadFiles
 * ReadBinaryFiles
@@ -126,15 +126,15 @@ Claudine can "reason", as much as Claude LLM can reason, so you can have any typ
 * ExecuteShellCommand
 * OpenUrl
 
-_see [tools(src/commonMain/kotlin/tools) package_
+_see [com.xemantic.ai.claudine.tool](src/commonMain/kotlin/tool) package_
 
 Just these tools, and the [system prompt](src/commonMain/kotlin/Claudine.kt), allow Claudine to:
 
-* Completely administer your computer and answer any question related to it's state.
+* Completely administer your computer and answer any question related to its state.
 * Analyze your files according to your instructions.
-* Fully analyze a source code of your project and implement a feature.
-* Code new tools needed to achieve your objective, and execute them until the goal is fulfilled.
-* Obtain any contextual information from the internet.
+* Fully analyze the source code of your project and implement a feature.
+* Code new tools needed to achieve your aim, and execute them until the goal is fulfilled.
+* Gather any contextual information from the internet.
 * Improve itself, modify prompts and add new tools.
 
 And many, many more, the sky is the limit ...
@@ -143,7 +143,7 @@ Adding new specialized tools on your own is also quite straightforward, just ask
 
 ## How can I use this knowledge?
 
-Claudine is a blueprint of an autonomous agent, therefore you can use it as an inspiration for implementing even more complex systems. Just remember about these 3 factors I mention earlier, and substitute them with specificity of your organization. For example the "standard" could be the SQL, and the "source of data" would be the database of your organization. In such scenario you need only 2 tools:
+Claudine is a blueprint of an autonomous agent. Therefore, you can use it as an inspiration for implementing even more complex systems. Remember about these three factors I mentioned earlier, and substitute them with the specificity of your organization. For example, the "standard" could be the SQL, and the "source of data" would be the database of your organization. In such a scenario, you need only two tools:
 
 1. Database schema reader
 2. SQL executor
@@ -187,13 +187,13 @@ When incorporating Claudine into your projects, you must comply with GPL-3.0 req
 
 ## Inspirations
 
-Claudine is not a common name, however I have a pleasure of working with
+Claudine is not a common name, however, I have a pleasure of working with
 [Claudine Chen](https://mingness.github.io/), a friend, and co-founder of
 [Prachtsaal](https://prachtsaal.berlin/), our non-profit art cooperative from Berlin.
 Claudine is an artist, scientist, programmer, and creative coder based
 in Dublin and Berlin. I remember introducing Claudine to Claude for the first time,
 when she was working for the [Processing Foundation](https://processingfoundation.org/)
-on  the
+on the
 [project simplifying the workflow for processing libraries, tools, and modes](https://processingfoundation.org/grants/pr05-grantees).
 
 The [Claude](https://claude.ai/) itself is the first LLM which gave me goosebumps,
