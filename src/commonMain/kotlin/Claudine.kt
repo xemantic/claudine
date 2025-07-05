@@ -22,16 +22,16 @@ import com.xemantic.ai.anthropic.Anthropic
 import com.xemantic.ai.anthropic.AnthropicConfigException
 import com.xemantic.ai.anthropic.Model
 import com.xemantic.ai.anthropic.cache.CacheControl
-import com.xemantic.ai.anthropic.collections.transformLast
 import com.xemantic.ai.anthropic.content.ToolResult
 import com.xemantic.ai.anthropic.content.ToolUse
+import com.xemantic.ai.anthropic.cost.Cost
 import com.xemantic.ai.anthropic.message.Message
 import com.xemantic.ai.anthropic.message.StopReason
 import com.xemantic.ai.anthropic.message.System
 import com.xemantic.ai.anthropic.message.ToolResultMessageBuilder
+import com.xemantic.ai.anthropic.message.addCacheBreakpoint
 import com.xemantic.ai.anthropic.message.plusAssign
 import com.xemantic.ai.anthropic.tool.Tool
-import com.xemantic.ai.anthropic.usage.Cost
 import com.xemantic.ai.anthropic.usage.Usage
 import com.xemantic.ai.claudine.tool.ClaudineTool
 import com.xemantic.ai.claudine.tool.CreateFile
@@ -76,10 +76,6 @@ The operating system of human's machine: $operatingSystem
 
 """
 
-fun environmentContextSystemPrompt() = """
-Current date: ${describeCurrentMoment()} (conversation start)
-"""
-
 /**
  * Starts claudine agent.
  *
@@ -98,7 +94,8 @@ suspend fun claudine(
                 "token-efficient-tools-2025-02-19",
                 "prompt-caching-2024-07-31"
             )
-            defaultMaxTokens = 64000 // max for claude 3.7 Sonnet
+            defaultModel = Model.CLAUDE_4_SONNET
+            defaultMaxTokens = Model.CLAUDE_4_SONNET.maxOutput
         }
     } catch (e: AnthropicConfigException) {
         println(e.message)
@@ -112,7 +109,11 @@ suspend fun claudine(
     var totalCost = Cost.ZERO
     val systemPrompt = listOf(
         System(
-            text = claudineSystemPrompt + environmentContextSystemPrompt(),
+            text = """
+                $claudineSystemPrompt
+                
+                ${describeCurrentMoment()}
+            """.trimIndent(),
             cacheControl = CacheControl.Ephemeral()
         )
     )
@@ -144,15 +145,7 @@ suspend fun claudine(
             val response = anthropic.messages.create {
                 system = systemPrompt
                 // TODO this should go to the SDK
-                messages = conversation.transformLast {
-                    copy {
-                        content = content.transformLast {
-                            alterCacheControl(
-                                CacheControl.Ephemeral()
-                            )
-                        }
-                    }
-                }
+                messages = conversation.addCacheBreakpoint()
                 tools = claudineTools
             }
             if (response.stopReason == StopReason.MAX_TOKENS) {
@@ -170,7 +163,7 @@ suspend fun claudine(
             }
 
             totalUsage += response.usage
-            val cost = response.usage.cost(Model.CLAUDE_3_7_SONNET.cost)
+            val cost = Model.CLAUDE_4_SONNET.cost * response.usage
             totalCost += cost
 
             println("[Claudine]> Tax:")

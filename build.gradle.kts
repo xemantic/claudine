@@ -83,8 +83,9 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(libs.anthropic.sdk.kotlin)
+                implementation(libs.kotlinx.serialization.core)
+                implementation(libs.kotlinx.serialization.json)
                 implementation(libs.ktor.client.core)
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0") // Added for SecondBrain
             }
         }
 

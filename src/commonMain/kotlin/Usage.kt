@@ -1,6 +1,6 @@
 package com.xemantic.ai.claudine
 
-import com.xemantic.ai.anthropic.usage.Cost
+import com.xemantic.ai.anthropic.cost.Cost
 import com.xemantic.ai.anthropic.usage.Usage
 
 class Table {

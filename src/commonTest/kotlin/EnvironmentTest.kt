@@ -18,24 +18,14 @@
 
 package com.xemantic.ai.claudine
 
-import java.util.TimeZone
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
+import kotlin.test.Test
 
-expect val operatingSystem: String
+class EnvironmentTest {
 
-expect val userHomeDir: String
+    @Test
+    fun `should describe current moment`() {
+        val description = describeCurrentMoment()
+        println(description)
+    }
 
-@OptIn(ExperimentalTime::class)
-fun describeCurrentMoment(): String = """
-    started at: ${Clock.System.now()}
-    time zone: ${TimeZone.getDefault().id}
-""".trimIndent()
-
-fun getShellCommand() = if (
-    operatingSystem.lowercase().contains("win")
-) {
-    listOf("powershell.exe", "-Command")
-} else {
-    listOf("/bin/bash", "-c")
 }
