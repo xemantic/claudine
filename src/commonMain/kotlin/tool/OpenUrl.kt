@@ -74,8 +74,6 @@ data class OpenUrl(
 
 }
 
-private val ContentType.Image.WEBP get() = ContentType("image", "webp")
-
 private fun ContentType.match(
     vararg contentTypes: ContentType
 ) = contentTypes.any {

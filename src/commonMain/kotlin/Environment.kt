@@ -18,7 +18,6 @@
 
 package com.xemantic.ai.claudine
 
-import java.util.TimeZone
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -29,7 +28,7 @@ expect val userHomeDir: String
 @OptIn(ExperimentalTime::class)
 fun describeCurrentMoment(): String = """
     started at: ${Clock.System.now()}
-    time zone: ${TimeZone.getDefault().id}
+    time zone: ${systemTimeZone()}
 """.trimIndent()
 
 fun getShellCommand() = if (
@@ -39,3 +38,5 @@ fun getShellCommand() = if (
 } else {
     listOf("/bin/bash", "-c")
 }
+
+expect fun systemTimeZone(): String

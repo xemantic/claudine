@@ -34,3 +34,8 @@ actual val operatingSystem: String
 actual val userHomeDir: String = getenv("HOME")?.toKString()
     ?: getpwuid(getuid())?.pointed?.pw_dir?.toKString()
     ?: throw Error("Could not determine user home directory")
+
+@OptIn(ExperimentalForeignApi::class)
+actual fun systemTimeZone(): String {
+    return getenv("TZ")?.toKString() ?: "UTC"
+}

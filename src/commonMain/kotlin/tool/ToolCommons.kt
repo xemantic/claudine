@@ -21,11 +21,19 @@ package com.xemantic.ai.claudine.tool
 import com.xemantic.ai.anthropic.content.Document
 import com.xemantic.ai.anthropic.content.Image
 import com.xemantic.ai.anthropic.content.Text
+import com.xemantic.ai.anthropic.content.ToolUse
+import com.xemantic.ai.anthropic.message.MessageResponse
 import com.xemantic.ai.file.magic.detectMediaType
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
-interface ClaudineTool {
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonClassDiscriminator("type")
+sealed interface ClaudineTool {
     val purpose: String
     val info: String
 }
@@ -47,3 +55,18 @@ fun String.formatAsToolDescription() = "|\n${toFormattedLines()}\n|"
 private fun String.toFormattedLines(): String = lines().joinToString(
     separator = "\n"
 ) { "| $it" }
+
+fun MessageResponse.describeTools() = content.filterIsInstance<ToolUse>().forEach {
+    val input = it.resolveInput()
+    println("[Claudine]> Using ${it.name} to: ${input.purpose}")
+    println(input.info.formatAsToolDescription())
+}
+
+private fun ToolUse.resolveInput() = when (name) {
+    "CreateFile" -> decodeInput<CreateFile>()
+    "ExecuteShellCommand" -> decodeInput<ExecuteShellCommand>()
+    "OpenUrl" -> decodeInput<OpenUrl>()
+    "ReadBinaryFiles" -> decodeInput<ReadBinaryFiles>()
+    "ReadFiles" -> decodeInput<ReadFiles>()
+    else -> throw IllegalStateException("Unknown tool: $name")
+}

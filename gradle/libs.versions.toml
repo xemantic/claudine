@@ -1,21 +1,21 @@
 [versions]
-kotlinTarget = "2.1"
+kotlinTarget = "2.2"
 javaTarget = "17"
 
-kotlin = "2.2.0"
+kotlin = "2.2.21"
 kotlinxSerialization = "1.9.0"
 
-anthropicSdkKotlin = "0.22.0"
-xemanticKotlinTest = "1.9.0"
+anthropicSdkKotlin = "0.24.0"
+xemanticKotlinTest = "1.15.2"
 
-ktor = "3.2.1"
+ktor = "3.3.2"
 
-kotest = "6.0.0.M4"
+kotest = "6.0.4"
 
-log4j = "2.24.1"
-jackson = "2.19.1"
+log4j = "2.25.2"
+jackson = "2.20.1"
 
-versionsPlugin = "0.52.0"
+versionsPlugin = "0.53.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }

@@ -20,26 +20,21 @@ package com.xemantic.ai.claudine
 
 import com.xemantic.ai.anthropic.Anthropic
 import com.xemantic.ai.anthropic.AnthropicConfigException
-import com.xemantic.ai.anthropic.Model
 import com.xemantic.ai.anthropic.cache.CacheControl
-import com.xemantic.ai.anthropic.content.ToolResult
-import com.xemantic.ai.anthropic.content.ToolUse
-import com.xemantic.ai.anthropic.cost.Cost
+import com.xemantic.ai.anthropic.cost.CostWithUsage
+import com.xemantic.ai.anthropic.cost.costReport
 import com.xemantic.ai.anthropic.message.Message
 import com.xemantic.ai.anthropic.message.StopReason
 import com.xemantic.ai.anthropic.message.System
-import com.xemantic.ai.anthropic.message.ToolResultMessageBuilder
 import com.xemantic.ai.anthropic.message.addCacheBreakpoint
 import com.xemantic.ai.anthropic.message.plusAssign
-import com.xemantic.ai.anthropic.tool.Tool
-import com.xemantic.ai.anthropic.usage.Usage
-import com.xemantic.ai.claudine.tool.ClaudineTool
+import com.xemantic.ai.anthropic.tool.Toolbox
 import com.xemantic.ai.claudine.tool.CreateFile
 import com.xemantic.ai.claudine.tool.ExecuteShellCommand
 import com.xemantic.ai.claudine.tool.OpenUrl
 import com.xemantic.ai.claudine.tool.ReadBinaryFiles
 import com.xemantic.ai.claudine.tool.ReadFiles
-import com.xemantic.ai.claudine.tool.formatAsToolDescription
+import com.xemantic.ai.claudine.tool.describeTools
 import io.ktor.client.HttpClient
 
 val claudineSystemPrompt = """
@@ -79,12 +74,9 @@ The operating system of human's machine: $operatingSystem
 /**
  * Starts claudine agent.
  *
- * @param autoConfirmToolUse auto confirms tools use if set to `true`, asks for confirmation every time otherwise.
  * @return the exit code
  */
-suspend fun claudine(
-    autoConfirmToolUse: Boolean,
-): Int {
+suspend fun claudine(): Int {
 
     val httpClient = HttpClient()
 
@@ -94,8 +86,6 @@ suspend fun claudine(
                 "token-efficient-tools-2025-02-19",
                 "prompt-caching-2024-07-31"
             )
-            defaultModel = Model.CLAUDE_4_SONNET
-            defaultMaxTokens = Model.CLAUDE_4_SONNET.maxOutput
         }
     } catch (e: AnthropicConfigException) {
         println(e.message)
@@ -104,9 +94,8 @@ suspend fun claudine(
 
     println("[Claudine]> Connecting human and human's machine to cognition of Claude AI")
 
+    var totalStats = CostWithUsage.ZERO
     val conversation = mutableListOf<Message>()
-    var totalUsage = Usage.ZERO
-    var totalCost = Cost.ZERO
     val systemPrompt = listOf(
         System(
             text = """
@@ -118,13 +107,13 @@ suspend fun claudine(
         )
     )
 
-    val claudineTools = listOf(
-        Tool<ExecuteShellCommand> { use() },
-        Tool<CreateFile> { use() },
-        Tool<ReadBinaryFiles> { use() },
-        Tool<ReadFiles> { use() },
-        Tool<OpenUrl> { use(httpClient) }
-    )
+    val toolbox = Toolbox {
+        tool<ExecuteShellCommand> { use() }
+        tool<CreateFile> { use() }
+        tool<ReadBinaryFiles> { use() }
+        tool<ReadFiles> { use() }
+        tool<OpenUrl> { use(httpClient) }
+    }
 
     while (true) {
 
@@ -144,9 +133,8 @@ suspend fun claudine(
             }
             val response = anthropic.messages.create {
                 system = systemPrompt
-                // TODO this should go to the SDK
                 messages = conversation.addCacheBreakpoint()
-                tools = claudineTools
+                tools = toolbox.tools
             }
             if (response.stopReason == StopReason.MAX_TOKENS) {
                 println("[Claudine]> Error: max number of output tokens reached")
@@ -162,41 +150,19 @@ suspend fun claudine(
                 println("[Claudine]> ${response.text}")
             }
 
-            totalUsage += response.usage
-            val cost = Model.CLAUDE_4_SONNET.cost * response.usage
-            totalCost += cost
+            val stats = response.costWithUsage
+            totalStats += stats
 
             println("[Claudine]> Tax:")
-            print(costReport(response.usage, totalUsage, cost, totalCost))
+            print(costReport(stats, totalStats))
             println("|")
 
-            val toolResultMessageBuilder = ToolResultMessageBuilder()
-            response.content.filterIsInstance<ToolUse>().forEach {
-                val toolInput = it.decodeInput() as ClaudineTool
-                println("[Claudine]> I want to use ${it.name} tool: ${toolInput.purpose}")
-                println(toolInput.info.formatAsToolDescription())
-
-                val result = if (autoConfirmToolUse) {
-                    it.use()
-                } else {
-                    println("[Claudine]> Can I use this tool? [yes/exit/or type a reason not to run it]")
-                    print("[me]> ")
-                    when (val confirmLine = readln()) {
-                        "yes" -> it.use()
-                        "exit" -> return 0 // exit code
-                        else -> ToolResult {
-                            toolUseId = it.id
-                            isError = true
-                            +"The human refused to run this command on their machine with the following reason: $confirmLine"
-                        }
-                    }
-                }
-                toolResultMessageBuilder.add(result)
-            }
-
-            agentLoop = response.stopReason == StopReason.TOOL_USE
-            if (agentLoop) {
-                conversation += toolResultMessageBuilder.build()
+            agentLoop = if (response.stopReason == StopReason.TOOL_USE) {
+                response.describeTools()
+                conversation += response.useTools(toolbox)
+                true
+            } else {
+                false
             }
 
         } while (agentLoop)

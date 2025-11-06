@@ -18,6 +18,10 @@
 
 package com.xemantic.ai.claudine
 
+import java.util.TimeZone
+
 actual val operatingSystem: String get() = System.getProperty("os.name")
 
 actual val userHomeDir = System.getProperty("user.home")!! // it must exist
+
+actual fun systemTimeZone(): String = TimeZone.getDefault().id
