@@ -5,7 +5,7 @@ javaTarget = "17"
 kotlin = "2.2.21"
 kotlinxSerialization = "1.9.0"
 
-anthropicSdkKotlin = "0.24.0"
+anthropicSdkKotlin = "0.26.0"
 xemanticKotlinTest = "1.15.2"
 
 ktor = "3.3.2"
