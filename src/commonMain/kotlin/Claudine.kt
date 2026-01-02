@@ -21,6 +21,7 @@ package com.xemantic.ai.claudine
 import com.xemantic.ai.anthropic.Anthropic
 import com.xemantic.ai.anthropic.AnthropicConfigException
 import com.xemantic.ai.anthropic.cache.CacheControl
+import com.xemantic.ai.anthropic.content.ThinkingBlock
 import com.xemantic.ai.anthropic.cost.CostWithUsage
 import com.xemantic.ai.anthropic.cost.costReport
 import com.xemantic.ai.anthropic.message.Message
@@ -28,6 +29,7 @@ import com.xemantic.ai.anthropic.message.StopReason
 import com.xemantic.ai.anthropic.message.System
 import com.xemantic.ai.anthropic.message.addCacheBreakpoint
 import com.xemantic.ai.anthropic.message.plusAssign
+import com.xemantic.ai.anthropic.thinking.ThinkingConfigEnabled
 import com.xemantic.ai.anthropic.tool.Toolbox
 import com.xemantic.ai.claudine.tool.CreateFile
 import com.xemantic.ai.claudine.tool.ExecuteShellCommand
@@ -142,6 +144,9 @@ suspend fun claudine(): Int {
                     }
                 )
                 tools = toolbox.tools
+                thinking = ThinkingConfigEnabled {
+                    budgetTokens = 2048
+                }
             }
             if (response.stopReason == StopReason.MAX_TOKENS) {
                 println("[Claudine]> Error: max number of output tokens reached")
@@ -152,6 +157,13 @@ suspend fun claudine(): Int {
             }
 
             conversation += response
+
+            // Display thinking process if available
+            response.content.filterIsInstance<ThinkingBlock>().firstOrNull()?.let { thinkingBlock ->
+                print("[Claudine - Thinking]> ")
+                println(thinkingBlock.thinking)
+                println()
+            }
 
             response.text?.run {
                 println("[Claudine]> ${response.text}")
