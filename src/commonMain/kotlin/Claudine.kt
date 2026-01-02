@@ -96,14 +96,17 @@ suspend fun claudine(): Int {
 
     var totalStats = CostWithUsage.ZERO
     val conversation = mutableListOf<Message>()
+
     val systemPrompt = listOf(
         System(
             text = """
                 $claudineSystemPrompt
-                
+
                 ${describeCurrentMoment()}
             """.trimIndent(),
-            cacheControl = CacheControl.Ephemeral()
+            cacheControl = CacheControl.Ephemeral {
+                ttl = CacheControl.Ephemeral.TTL.ONE_HOUR
+            }
         )
     )
 
@@ -133,7 +136,11 @@ suspend fun claudine(): Int {
             }
             val response = anthropic.messages.create {
                 system = systemPrompt
-                messages = conversation.addCacheBreakpoint()
+                messages = conversation.addCacheBreakpoint(
+                    cacheControl = CacheControl.Ephemeral {
+                        ttl = CacheControl.Ephemeral.TTL.ONE_HOUR
+                    }
+                )
                 tools = toolbox.tools
             }
             if (response.stopReason == StopReason.MAX_TOKENS) {
