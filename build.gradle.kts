@@ -66,10 +66,6 @@ kotlin {
             claudineBinary()
         }
 
-        macosX64 {
-            claudineBinary()
-        }
-
         macosArm64 {
             claudineBinary()
         }
