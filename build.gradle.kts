@@ -30,9 +30,9 @@ kotlin {
     compilerOptions {
         apiVersion = kotlinTarget
         languageVersion = kotlinTarget
-        freeCompilerArgs.add("-Xmulti-dollar-interpolation")
         extraWarnings.set(true)
         progressiveMode = true
+        freeCompilerArgs.add("-Xcontext-sensitive-resolution")
     }
 
     jvm {
@@ -98,11 +98,7 @@ kotlin {
         jvmMain {
             dependencies {
                 runtimeOnly(libs.ktor.client.java)
-
-                runtimeOnly(libs.log4j.slf4j2)
-                runtimeOnly(libs.log4j.core)
-                runtimeOnly(libs.jackson.databind)
-                runtimeOnly(libs.jackson.dataformat.yaml)
+                runtimeOnly(libs.logback.classic)
             }
         }
 

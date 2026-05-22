@@ -1,21 +1,20 @@
 [versions]
-kotlinTarget = "2.2"
+kotlinTarget = "2.3"
 javaTarget = "17"
 
-kotlin = "2.2.21"
-kotlinxSerialization = "1.9.0"
+kotlin = "2.3.21"
+kotlinxSerialization = "1.11.0"
 
-anthropicSdkKotlin = "0.24.0"
-xemanticKotlinTest = "1.15.2"
+anthropicSdkKotlin = "0.32.3"
+xemanticKotlinTest = "1.17.5"
 
-ktor = "3.3.2"
+ktor = "3.5.0"
 
-kotest = "6.0.4"
+kotest = "6.1.11"
 
-log4j = "2.25.2"
-jackson = "2.20.1"
+logback = "1.5.32"
 
-versionsPlugin = "0.53.0"
+versionsPlugin = "0.54.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -25,10 +24,7 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 anthropic-sdk-kotlin = { module = "com.xemantic.ai:anthropic-sdk-kotlin", version.ref = "anthropicSdkKotlin" }
 xemantic-kotlin-test = { module = "com.xemantic.kotlin:xemantic-kotlin-test", version.ref = "xemanticKotlinTest" }
 
-log4j-slf4j2 = { group = "org.apache.logging.log4j", name = "log4j-slf4j2-impl", version.ref = "log4j" }
-log4j-core = { group = "org.apache.logging.log4j", name = "log4j-core", version.ref = "log4j" }
-jackson-databind = { group = "com.fasterxml.jackson.core", name = "jackson-databind", version.ref = "jackson" }
-jackson-dataformat-yaml = { group = "com.fasterxml.jackson.dataformat", name = "jackson-dataformat-yaml", version.ref = "jackson" }
+logback-classic = { group = "ch.qos.logback", name = "logback-classic", version.ref = "logback" }
 
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 
