@@ -20,14 +20,17 @@ package com.xemantic.ai.claudine
 
 import com.xemantic.ai.anthropic.Anthropic
 import com.xemantic.ai.anthropic.AnthropicConfigException
+import com.xemantic.ai.anthropic.Model
 import com.xemantic.ai.anthropic.cache.CacheControl
 import com.xemantic.ai.anthropic.cost.CostWithUsage
 import com.xemantic.ai.anthropic.cost.costReport
+import com.xemantic.ai.anthropic.cost.pricedBy
 import com.xemantic.ai.anthropic.message.Message
-import com.xemantic.ai.anthropic.message.StopReason
 import com.xemantic.ai.anthropic.message.System
 import com.xemantic.ai.anthropic.message.addCacheBreakpoint
 import com.xemantic.ai.anthropic.message.plusAssign
+import com.xemantic.ai.anthropic.message.toMessageResponse
+import com.xemantic.ai.anthropic.thinking.ThinkingConfig
 import com.xemantic.ai.anthropic.tool.Toolbox
 import com.xemantic.ai.claudine.tool.CreateFile
 import com.xemantic.ai.claudine.tool.ExecuteShellCommand
@@ -36,6 +39,7 @@ import com.xemantic.ai.claudine.tool.ReadBinaryFiles
 import com.xemantic.ai.claudine.tool.ReadFiles
 import com.xemantic.ai.claudine.tool.describeTools
 import io.ktor.client.HttpClient
+import kotlinx.coroutines.flow.onEach
 
 val claudineSystemPrompt = """
 Your name is Claudine and you are an AI agent controlling the machine of the human you are connected to while using cognition of the Claude AI LLM model.
@@ -78,13 +82,14 @@ The operating system of human's machine: $operatingSystem
  */
 suspend fun claudine(): Int {
 
+    val model = Model.CLAUDE_OPUS_4_7
     val httpClient = HttpClient()
 
     val anthropic = try {
         Anthropic {
             anthropicBeta = listOf(
-                "token-efficient-tools-2025-02-19",
-                "prompt-caching-2024-07-31"
+                "compact-2026-01-12",
+                "task-budgets-2026-03-13"
             )
         }
     } catch (e: AnthropicConfigException) {
@@ -94,18 +99,16 @@ suspend fun claudine(): Int {
 
     println("[Claudine]> Connecting human and human's machine to cognition of Claude AI")
 
-    var totalStats = CostWithUsage.ZERO
-    val conversation = mutableListOf<Message>()
-    val systemPrompt = listOf(
-        System(
-            text = """
-                $claudineSystemPrompt
-                
-                ${describeCurrentMoment()}
-            """.trimIndent(),
-            cacheControl = CacheControl.Ephemeral()
-        )
-    )
+    val systemPrompt = listOf(System(
+        text = """
+            $claudineSystemPrompt
+            
+            ${describeCurrentMoment()}
+        """.trimIndent(),
+        cacheControl = CacheControl.Ephemeral {
+            ttl = CacheControl.Ephemeral.TTL.ONE_HOUR
+        }
+    ))
 
     val toolbox = Toolbox {
         tool<ExecuteShellCommand> { use() }
@@ -115,6 +118,21 @@ suspend fun claudine(): Int {
         tool<OpenUrl> { use(httpClient) }
     }
 
+    runAgent(anthropic, model, systemPrompt, toolbox)
+
+    return 0 // exit code
+}
+
+private suspend fun runAgent(
+    anthropic: Anthropic,
+    model: Model,
+    systemPrompt: List<System>,
+    toolbox: Toolbox
+) {
+
+    var totalStats = CostWithUsage.ZERO
+    val context = mutableListOf<Message>()
+
     while (true) {
 
         print("[me]> ")
@@ -122,52 +140,90 @@ suspend fun claudine(): Int {
         val input = readln()
         if (input == "exit") break
 
-        conversation += input
+        context += input
 
         println("[Claudine] ...Reasoning...")
 
-        var agentLoop = false
+        var inAgentLoop = false
         do {
-            if (agentLoop) {
+
+            if (inAgentLoop) {
                 println("[Claudine] ...Processing tool results...")
             }
-            val response = anthropic.messages.create {
+
+            var inThinking = false
+
+            val response = anthropic.messages.stream {
                 system = systemPrompt
-                messages = conversation.addCacheBreakpoint()
+                messages = context.addCacheBreakpoint()
                 tools = toolbox.tools
-            }
-            if (response.stopReason == StopReason.MAX_TOKENS) {
+                thinking = ThinkingConfig.Adaptive {
+                    display = ThinkingConfig.Display.SUMMARIZED
+                }
+            }.onEach { event ->
+
+                when (event) {
+
+                    is ContentBlockStart -> {
+                        val contentBlock = event.contentBlock
+                        if (contentBlock is Thinking) {
+                            inThinking = true
+                            println("<thinking>")
+                        }
+                    }
+
+                    is ContentBlockDelta -> {
+                        when (val delta = event.delta) {
+                            is TextDelta -> print(delta.text)
+                            is ThinkingDelta -> print(delta.thinking)
+                            else -> {} // nothing to do
+                        }
+                    }
+
+                    is ContentBlockStop -> {
+                        if (inThinking) {
+                            println("\n<thinking>")
+                            inThinking = false
+                        }
+                        println()
+                    }
+
+                    else -> { /* not printing other events */ }
+
+                }
+            }.toMessageResponse()
+
+            if (response.stopReason == MAX_TOKENS) {
                 println("[Claudine]> Error: max number of output tokens reached")
-                conversation[conversation.lastIndex] = conversation.last().copy {
+                context[context.lastIndex] = context.last().copy {
                     +"Limit the output not to exceed the limit of 64000 tokens"
                 }
                 continue
             }
 
-            conversation += response
+            context += response
 
-            response.text?.run {
-                println("[Claudine]> ${response.text}")
-            }
-
-            val stats = response.costWithUsage
+            val stats = response.usage.pricedBy(model)
             totalStats += stats
 
-            println("[Claudine]> Tax:")
-            print(costReport(stats, totalStats))
-            println("|")
+            reportCosts(stats, totalStats)
 
-            agentLoop = if (response.stopReason == StopReason.TOOL_USE) {
+            inAgentLoop = response.stopReason == TOOL_USE
+            if (inAgentLoop) {
                 response.describeTools()
-                conversation += response.useTools(toolbox)
-                true
-            } else {
-                false
+                context += response.useTools(toolbox)
             }
 
-        } while (agentLoop)
+        } while (inAgentLoop)
 
     }
+}
 
-    return 0 // exit code
+private fun reportCosts(
+    stats: CostWithUsage,
+    totalStats: CostWithUsage
+) {
+    println("[Claudine]> Tax:")
+    print(costReport(stats, totalStats))
+    println("|")
 }
