@@ -196,7 +196,7 @@ private suspend fun runAgent(
             if (response.stopReason == MAX_TOKENS) {
                 println("[Claudine]> Error: max number of output tokens reached")
                 context[context.lastIndex] = context.last().copy {
-                    +"Limit the output not to exceed the limit of 64000 tokens"
+                    +"Limit the output not to exceed the limit of ${model.maxOutput} tokens"
                 }
                 continue
             }

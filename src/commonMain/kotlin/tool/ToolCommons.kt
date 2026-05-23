@@ -58,11 +58,11 @@ private fun String.toFormattedLines(): String = lines().joinToString(
 
 fun MessageResponse.describeTools() = content.filterIsInstance<ToolUse>().forEach {
     val input = it.resolveInput()
-    println("[Claudine]> Using ${it.name} to: ${input.purpose}")
+    println("[Claudine]> Using ${it.name.removePrefix("toolu_functions.")} to: ${input.purpose}")
     println(input.info.formatAsToolDescription())
 }
 
-private fun ToolUse.resolveInput() = when (name) {
+private fun ToolUse.resolveInput() = when (name.removePrefix("toolu_functions.")) {
     "CreateFile" -> decodeInput<CreateFile>()
     "ExecuteShellCommand" -> decodeInput<ExecuteShellCommand>()
     "OpenUrl" -> decodeInput<OpenUrl>()
