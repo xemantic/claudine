@@ -1,6 +1,6 @@
 # claudine
 
-Claudine reasons and acts autonomously while being Unix-omnipotent and having access to the internet, therefore she might be the only AI assistant you will ever need. An AI agent, which is using your machine as a window to external world, therefore perceiving your reality, values and needs, and reasoning how to fulfill them.
+Claudine reasons and acts autonomously while being Unix-omnipotent and having access to the internet, therefore it might be the only AI assistant you will ever need. An AI agent, which is using your machine as a window to external world, therefore perceiving your reality, values and needs, and reasoning how to fulfill them.
 
 Claudine can also think about own thinking (meta-cognition), and write its own code, therefore:
 
@@ -8,8 +8,9 @@ Claudine can also think about own thinking (meta-cognition), and write its own c
 - modify own prompts
 - extend own functionality (new tools)
 
-> [!IMPORTANT]
-> 🤖 **Build Your Own AI Agents** - Join our one-day Agentic AI & Creative Coding Workshop in Berlin (Spring 2025), led by AI hack Berlin hackathon winner Kazik Pogoda. Learn to create autonomous AI agents using Anthropic API, engineer advanced prompts, and give your agents tools to control machines. Workshops run Tuesdays (Feb 25 - Mar 25) at Prachtsaal Berlin, limited to 15 participants. $150 contribution supports open source development (solidarity access available, no questions asked). All examples use Kotlin (crash course included) but focus on meta-principles of AI agent development. Details: <https://xemantic.com/ai/workshops>
+We use Claudine to teach harness engineering:
+
+https://xemantic.com/ai/workshops
 
 ## How to use Claudine?
 
